@@ -136,7 +136,7 @@ function normalizeFaceReport(result) {
 // server/worker.mjs
 var MAX_BODY = 16e3;
 var MAX_FACE_BODY = 15e5;
-var LIMITS = { daily: 30, perIP: 3, cooldown: 6e4 };
+var LIMITS = { daily: 1e3, perIP: 50, cooldown: 1e4 };
 var json = (value, status = 200, extra = {}) => new Response(JSON.stringify(value), {
   status,
   headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", ...extra }
@@ -229,7 +229,7 @@ async function handleRequest(request, env, upstream = fetch, clientIdentity = nu
   const isFace = Boolean(input) && typeof input === "object" && !Array.isArray(input) && Object.keys(input).length === 1 && Object.hasOwn(input, "face");
   if (!isFace && bodyText.length > MAX_BODY) return reply({ error: "invalid_body" }, 413);
   if (isFace ? !validateFacePayload(input.face) : !input || Object.keys(input).length !== 1 || !validatePayload(input.payload)) return reply({ error: isFace ? "invalid_image" : "invalid_chart" }, 400);
-  const ip = clientIdentity || request.headers.get("CF-Connecting-IP");
+  const ip = clientIdentity;
   if (!ip) return reply({ error: "client_unknown" }, 503);
   try {
     const hmac = await crypto.subtle.importKey("raw", new TextEncoder().encode(env.GEMINI_API_KEY), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);

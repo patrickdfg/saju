@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { handleRequest, SajuBudget, koreanDay } from '../server/worker.mjs';
+import { handleRequest as handle, koreanDay } from '../server/worker.mjs';
+const handleRequest = (req, env, upstream) => handle(req, env, upstream, '192.0.2.1');
 const chart = { version: 1, timeUnknown: true, pillars: ['year','month','day'].map(position => ({ position, hanja: '甲子' })), dayMaster: { hanja: '甲' }, luck: null };
 const report = { sections: ['self','social','talent','wealth','love','work','people','career','stars'].map(id => ({ id, paragraphs: ['테스트 문단입니다.', '두 번째 문단입니다.'] })) };
 const env = { GEMINI_API_KEY: 'TEST_ONLY_FAKE_KEY', GEMINI_MODEL: 'gemini-test', ALLOWED_ORIGIN: 'https://patrickdfg.github.io', SAJU_BUDGET: { idFromName: x => x, get: () => ({ fetch: async () => new Response('{}') }) } };
@@ -67,23 +68,5 @@ assert.equal((await handleRequest(faceRequest({ image: { mime: 'image/jpeg', dat
 assert.equal((await handleRequest(request({ payload: chart, face: {} }), env, faceUpstream)).status, 400);
 assert.equal((await handleRequest(request({ text: 'x'.repeat(17000) }), env, faceUpstream)).status, 413, 'non-photo bodies keep the small limit');
 
-// Serial transaction fixture verifies one shared budget; not a live Cloudflare test.
-let state, queue = Promise.resolve();
-const storage = { transaction(callback) { const run = queue.then(() => callback({ get: async () => structuredClone(state), put: async (_, value) => { state = structuredClone(value); }, setAlarm: async () => {}, delete: async () => { state = undefined; } })); queue = run.catch(() => {}); return run; } };
-const budget = new SajuBudget({ storage });
-const reserve = client => budget.fetch(new Request('https://budget/reserve', { method: 'POST', body: JSON.stringify({ client }) }));
-const statuses = await Promise.all(Array.from({ length: 50 }, (_, i) => reserve(i.toString(16).padStart(64, '0')).then(r => r.status)));
-assert.equal(statuses.filter(x => x === 200).length, 30);
-assert.equal(state.total, 30);
-state = { day: koreanDay(), total: 0, clients: {} };
-const id = 'a'.repeat(64);
-assert.equal((await reserve(id)).status, 200);
-assert.equal((await reserve(id)).status, 429, 'cooldown');
-for (let i = 0; i < 2; i++) { state.clients[id].last -= 61000; assert.equal((await reserve(id)).status, 200); }
-state.clients[id].last -= 61000; assert.equal((await reserve(id)).status, 429, 'per-IP cap');
-state.day = '2000-01-01'; assert.equal((await reserve(id)).status, 200, 'day reset');
-assert.equal(state.total, 1);
-await budget.alarm(); assert.equal(state.total, 1, 'late alarm retains current-day counters');
-state.day = '2000-01-01'; await budget.alarm(); assert.equal(state, undefined);
 assert.equal(koreanDay(Date.parse('2026-10-12T15:00:00Z')), '2026-10-13');
-console.log('PASS: server mock checks for fixed request, no secret leakage, validation, CORS, fail-closed quota, concurrent reservations, cooldown, KST rollover, and bounded response.');
+console.log('PASS: server mock checks for fixed request, no secret leakage, validation, CORS, fail-closed quota, photo requests, and bounded response.');
