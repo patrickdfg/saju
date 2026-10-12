@@ -36,18 +36,22 @@ C. 일반 전통 해설(개별 원문 조문은 확인하지 못함)
 
 [작성 규칙]
 - 모든 문장은 한국어 존댓말입니다. 한자 용어는 한글 뒤 괄호에 한 번만 쓰고 바로 쉬운 말로 풀어 주세요. 마크다운과 HTML은 쓰지 마세요.
-- 이 사진 속 사람에게만 해당하는 내용만 쓰세요. 누구에게나 맞는 일반론, 전통 관상학 개론, 부위의 일반적 의미 설명("보통 ~는 ~를 뜻합니다")은 쓰지 마세요.
-- observation에는 사진에서 실제로 보이는 구체적 특징(길이, 폭, 곡선, 높낮이, 살집, 간격, 좌우 차이, 눈매의 방향 등)을 한두 문장으로 쓰세요. 보이지 않거나 뚜렷한 특징이 없으면 "뚜렷한 특징이 보이지 않아요"라고 쓰고 reading은 한 문장으로 짧게 쓰세요.
-- 모든 reading(삼정, 오관, 십이궁, 시기별 주제, 재물·사업·관계·기질)은 반드시 그 사람의 구체적 특징을 먼저 짚고 "그래서 전통에서는 이렇게 읽는다"로 잇는 한두 문장이어야 합니다. 특징을 짚지 못하면 그 항목은 짧게 쓰고 억지로 채우지 마세요. 같은 문장이나 같은 구조를 항목마다 반복하지 마세요.
-- "전통에서는 ~로 봅니다" 같은 면책성 문구는 impression.text에서 한 번만 쓰고 나머지에서는 반복하지 마세요. 사진에서 보이지 않는 부위는 "사진에서 확인하기 어려워요"라고 쓰세요.
+- 이 사진 속 사람에게만 해당하는 내용만 쓰세요. 누구에게나 맞는 일반론, 부위의 일반적 의미 설명, 좋은 말만 늘어놓는 덕담은 쓰지 마세요.
+- 먼저 부위마다 사진에서 실제로 보이는지 판단해 visible에 넣으세요. 앞머리나 모자, 안경, 마스크, 그림자, 각도 때문에 가려졌거나 확신할 수 없으면 visible을 false로 두고 다른 문자열은 빈 문자열로 두세요. 이마가 앞머리로 덮여 있으면 이마의 넓이와 상태를 추측하지 말고 upper(상정)와 career(官祿宮)·virtue(福德宮)·travel(遷移宮)을 visible false로 두세요. 귀가 보이지 않으면 ear와 관련 항목도 false입니다. 보이지 않는 부위를 있는 것처럼 쓰는 것이 가장 큰 오류입니다.
+- observation에는 사진에서 보이는 구체적 특징(길이, 폭, 곡선, 높낮이, 살집, 간격, 좌우 차이, 눈매의 방향과 눈꺼풀 모양 등)을 한두 문장으로 쓰세요. reading은 그 특징을 짚고 "그래서 전통에서는 이렇게 읽는다"로 잇는 한두 문장입니다. stages와 themes의 basis에는 그 풀이의 근거가 되는 사진 속 구체적 특징을 한 문장으로 쓰세요.
+- 좋은 점만 쓰지 마세요. 사진에서 보이는 형태가 전통에서 균형을 맞추면 좋은 부분이나 조심할 점으로 읽히는 곳이 있으면 부드럽게 함께 쓰세요. 예를 들면 눈꺼풀이 무거워 보여 눈빛의 생기가 덜 드러난다거나 눈썹과 눈 사이가 좁아 보인다는 식입니다. 단 건강·피로·나이는 판단하지 마세요.
+- 초년·중년·말년과 재물·사업·관계·기질은 현재형이나 "전통적으로 ~한 주제로 읽힌다"로 쓰고, 이 사람이 실제로 어떤 삶을 살았는지를 과거형으로 단정하지 마세요. 예를 들어 "초년에 성장해 온" 같은 문장은 금지입니다.
+- "전통에서는 ~로 봅니다" 같은 면책성 문구는 impression.text에서 한 번만 쓰고 나머지에서는 반복하지 마세요. 항목끼리 문장 구조를 반복하지 마세요.
 - 전통 원문의 흉한 결론, 곧 빈궁·요절·질병·형벌·이혼·자식 문제·배우자 불화·도둑질·음란 등은 사람에게 적용하지 마세요. 그런 형태라도 "균형을 챙기면 좋은 부분"이나 "스스로 살펴볼 점"으로 바꿔 쓰세요. 좋은 형태도 보장으로 쓰지 말고 "살리면 좋은 강점"으로 쓰세요.
 - 금지 목록입니다. 확정적 성격 진단, 미래 사건과 시기 예측, 건강·질병·임신·정신 상태 판단, 나이·성별·인종·출신·종교·성적 지향 추측, 외모 점수나 순위, 투자·창업·결혼·채용 판단, 불안이나 의존을 조장하는 말입니다.
 - 재물운(財帛宮, 準頭)과 사업운은 돈을 대하는 태도, 일을 밀고 가는 방식, 협력하는 방식의 관점으로 쓰고 수익이나 손실을 예고하지 마세요. 초·중·말년은 삼정에 대응하는 "전통적 주제"이며 실제 인생의 사건이 아닙니다.
 - 첫 impression.text는 이것이 전통 상징을 AI가 풀어쓴 성찰용 풀이이고 사진 한 장으로 사람을 판단할 수 없다는 점을 한 문장으로 밝히세요. advice는 오늘 해 볼 수 있는 작은 실천 두세 문장으로 끝내고 감사나 평안의 말을 담되 종교적 예언은 하지 마세요.
-- palaces는 ming, wealth, career, virtue, home, sibling, children, spouse, travel, servants 10개를 각각 한 번씩, samjeong은 upper, middle, lower 3개, ogwan은 brow, eye, ear, nose, mouth 5개, stages는 early, middle, late 3개, themes는 wealth, business, relationships, temperament 4개를 모두 채웁니다. 각 문자열은 200자 이내로 쓰세요.`;
+- palaces는 ming, wealth, career, virtue, home, sibling, children, spouse, travel, servants 10개를 각각 한 번씩, samjeong은 upper, middle, lower 3개, ogwan은 brow, eye, ear, nose, mouth 5개, stages는 early, middle, late 3개, themes는 wealth, business, relationships, temperament 4개를 항목은 모두 넣고, 가려진 부위는 visible을 false로 둡니다. 각 문자열은 200자 이내로 쓰세요.`;
 
 const str = { type: 'STRING' };
-const item = (ids, extra = {}) => ({ type: 'ARRAY', items: { type: 'OBJECT', required: ['id', ...Object.keys(extra), 'reading'], properties: { id: { type: 'STRING', enum: ids }, ...Object.fromEntries(Object.keys(extra).map(k => [k, str])), reading: str } } });
+const bool = { type: 'BOOLEAN' };
+// strFields는 필수 문자열, withVisible이면 가려진 부위를 false로 표시할 수 있다.
+const item = (ids, strFields = [], withVisible = false) => ({ type: 'ARRAY', items: { type: 'OBJECT', required: ['id', ...(withVisible ? ['visible'] : []), ...strFields, 'reading'], properties: { id: { type: 'STRING', enum: ids }, ...(withVisible ? { visible: bool } : {}), ...Object.fromEntries(strFields.map(k => [k, str])), reading: str } } });
 export function geminiFaceSchema() {
   return {
     type: 'OBJECT', required: ['status'],
@@ -55,11 +59,11 @@ export function geminiFaceSchema() {
       status: { type: 'STRING', enum: FACE_STATUS },
       impression: { type: 'OBJECT', required: ['type', 'headline', 'text'], properties: { type: { type: 'STRING', enum: FACE_IMPRESSIONS }, headline: str, text: str } },
       faceShape: { type: 'OBJECT', required: ['name', 'text'], properties: { name: str, text: str } },
-      samjeong: item(FACE_ZONES, { observation: 0 }),
-      ogwan: item(FACE_FEATURES, { shapeName: 0, observation: 0 }),
-      palaces: item(FACE_PALACES),
-      stages: item(FACE_STAGES),
-      themes: item(FACE_THEMES),
+      samjeong: item(FACE_ZONES, ['observation'], true),
+      ogwan: item(FACE_FEATURES, ['shapeName', 'observation'], true),
+      palaces: item(FACE_PALACES, ['observation'], true),
+      stages: item(FACE_STAGES, ['basis']),
+      themes: item(FACE_THEMES, ['basis']),
       advice: str
     }
   };
@@ -74,14 +78,19 @@ export function validateFacePayload(face) {
   return atob(data.slice(0, 8)).startsWith('\xff\xd8\xff');
 }
 
-function pick(list, ids, fields) {
+function pick(list, ids, fields, withVisible = false) {
   if (!Array.isArray(list) || list.length !== ids.length) throw Error('format');
   return ids.map(id => {
     const found = list.filter(x => x?.id === id);
     if (found.length !== 1) throw Error('format');
     const out = { id };
-    for (const f of fields) {
+    if (withVisible) {
+      if (typeof found[0].visible !== 'boolean') throw Error('format');
+      out.visible = found[0].visible;
+    }
+    for (const f of [...fields, 'reading']) {
       const value = found[0][f];
+      if (withVisible && out.visible === false) { out[f] = ''; continue; }
       if (f === 'shapeName') { if (typeof value !== 'string' || value.length > 20 || /[<>\x00-\x1f]/.test(value)) throw Error('format'); out[f] = value; }
       else { if (!bounded(value)) throw Error('format'); out[f] = value; }
     }
@@ -101,11 +110,11 @@ export function normalizeFaceReport(result) {
     status: 'ok',
     impression: { type: r.impression.type, headline: r.impression.headline, text: r.impression.text },
     faceShape: { name: r.faceShape.name, text: r.faceShape.text },
-    samjeong: pick(r.samjeong, FACE_ZONES, ['observation', 'reading']),
-    ogwan: pick(r.ogwan, FACE_FEATURES, ['shapeName', 'observation', 'reading']),
-    palaces: pick(r.palaces, FACE_PALACES, ['reading']),
-    stages: pick(r.stages, FACE_STAGES, ['reading']),
-    themes: pick(r.themes, FACE_THEMES, ['reading']),
+    samjeong: pick(r.samjeong, FACE_ZONES, ['observation'], true),
+    ogwan: pick(r.ogwan, FACE_FEATURES, ['shapeName', 'observation'], true),
+    palaces: pick(r.palaces, FACE_PALACES, ['observation'], true),
+    stages: pick(r.stages, FACE_STAGES, ['basis']),
+    themes: pick(r.themes, FACE_THEMES, ['basis']),
     advice: r.advice
   };
 }
