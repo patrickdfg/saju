@@ -5,7 +5,7 @@
   "description": "Korean local-first saju and 78-card tarot reflection app",
   "scripts": {
     "build": "node tools/build.cjs",
-    "test": "node tests/check.cjs && node tests/daily-saju.cjs && node tests/astro.cjs && node tests/gemini-saju.cjs && node tests/face-classic.cjs && node tests/server.mjs && node tests/supabase.mjs"
+    "test": "node tests/check.cjs && node tests/daily-saju.cjs && node tests/astro.cjs && node tests/gemini-saju.cjs && node tests/face-classic.cjs && node tests/saju-nav.cjs && node tests/server.mjs && node tests/supabase.mjs"
   },
   "devDependencies": {
     "esbuild": "0.25.12",
