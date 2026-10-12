@@ -5,6 +5,7 @@ const CLASSIC_FACE_FEATURES={brow:['눈썹','보수관 保壽官'],eye:['눈','�
 const CLASSIC_FACE_PALACES={ming:['명궁 命宮','마음의 중심'],wealth:['재백궁 財帛宮','돈을 대하는 태도'],career:['관록궁 官祿宮','일과 책임'],virtue:['복덕궁 福德宮','마음의 여유'],home:['전택궁 田宅宮','터전과 안정'],sibling:['형제궁 兄弟宮','동료·형제와의 결'],children:['남녀궁 男女宮','돌봄과 창작'],spouse:['처첩궁 妻妾宮','가까운 동반 관계'],travel:['천이궁 遷移宮','이동과 환경 변화'],servants:['노복궁 奴僕宮','주변의 조력']};
 const CLASSIC_FACE_STAGES={early:['초년','상정에 대응하는 주제'],middle:['중년','중정에 대응하는 주제'],late:['말년','하정에 대응하는 주제']};
 const CLASSIC_FACE_THEMES={wealth:'재물을 대하는 결',business:'일과 사업을 밀고 가는 결',relationships:'사람을 대하는 결',temperament:'기질과 표현'};
+const CLASSIC_FACE_HIDDEN='사진에서 가려져 있거나 잘 보이지 않아 읽지 않았어요.';
 const CLASSIC_FACE_REFUSALS={no_face:'얼굴을 찾지 못했어요. 얼굴이 정면에서 잘 보이는 사진을 골라 주세요.',multiple_faces:'사진에 얼굴이 둘 이상 있어요. 한 사람만 나온 사진을 골라 주세요.',minor:'어린이·청소년으로 보이는 사진은 풀이하지 않아요.',low_quality:'사진이 어둡거나 흐려서 부위를 구분하기 어려워요. 밝은 곳에서 다시 찍어 주세요.'};
 let classicFaceRequest=null;
 function classicFaceError(status){if(status===400)return '서버가 사진 풀이 요청을 받아들이지 못했어요. 운영 서버가 아직 업데이트되지 않았을 수 있어요.';if(status===413)return '사진 용량이 너무 커요. 더 작은 사진을 골라 주세요.';return geminiSajuError(status);}
@@ -14,9 +15,9 @@ function parseClassicFaceReport(data){
  const bad=()=>Error('풀이 형식이 올바르지 않아요. 다시 생성해 주세요.');
  if(!data||typeof data!=='object'||typeof data.status!=='string')throw bad();
  if(data.status!=='ok'){if(!CLASSIC_FACE_REFUSALS[data.status])throw bad();return {status:data.status};}
- const list=(items,labels,fields)=>{if(!Array.isArray(items)||items.length!==Object.keys(labels).length)throw bad();return Object.keys(labels).map(id=>{const found=items.filter(x=>x&&x.id===id);if(found.length!==1)throw bad();const out={id};for(const f of fields){const value=found[0][f];if(f==='shapeName'?typeof value!=='string'||value.length>20:!classicFaceTextOk(value,600))throw bad();out[f]=value;}return out;});};
+ const list=(items,labels,fields,withVisible)=>{if(!Array.isArray(items)||items.length!==Object.keys(labels).length)throw bad();return Object.keys(labels).map(id=>{const found=items.filter(x=>x&&x.id===id);if(found.length!==1)throw bad();const out={id};if(withVisible){if(typeof found[0].visible!=='boolean')throw bad();out.visible=found[0].visible;}for(const f of fields){const value=found[0][f];if(withVisible&&out.visible===false){out[f]='';continue;}if(f==='shapeName'?typeof value!=='string'||value.length>20:!classicFaceTextOk(value,600))throw bad();out[f]=value;}return out;});};
  if(!data.impression||!classicFaceTextOk(data.impression.headline,120)||!classicFaceTextOk(data.impression.text,800)||!data.faceShape||!classicFaceTextOk(data.faceShape.name,60)||!classicFaceTextOk(data.faceShape.text,800)||!classicFaceTextOk(data.advice,900))throw bad();
- return {status:'ok',impression:{type:String(data.impression.type||''),headline:data.impression.headline,text:data.impression.text},faceShape:{name:data.faceShape.name,text:data.faceShape.text},samjeong:list(data.samjeong,CLASSIC_FACE_ZONES,['observation','reading']),ogwan:list(data.ogwan,CLASSIC_FACE_FEATURES,['shapeName','observation','reading']),palaces:list(data.palaces,CLASSIC_FACE_PALACES,['reading']),stages:list(data.stages,CLASSIC_FACE_STAGES,['reading']),themes:list(data.themes,CLASSIC_FACE_THEMES,['reading']),advice:data.advice};
+ return {status:'ok',impression:{type:String(data.impression.type||''),headline:data.impression.headline,text:data.impression.text},faceShape:{name:data.faceShape.name,text:data.faceShape.text},samjeong:list(data.samjeong,CLASSIC_FACE_ZONES,['observation','reading'],true),ogwan:list(data.ogwan,CLASSIC_FACE_FEATURES,['shapeName','observation','reading'],true),palaces:list(data.palaces,CLASSIC_FACE_PALACES,['observation','reading'],true),stages:list(data.stages,CLASSIC_FACE_STAGES,['basis','reading']),themes:list(data.themes,CLASSIC_FACE_THEMES,['basis','reading']),advice:data.advice};
 }
 // 가로세로 1024px 이하 JPEG로 다시 그려 위치·촬영정보 같은 메타데이터를 없애고 용량을 줄인다.
 async function prepareClassicFaceImage(file){
@@ -33,11 +34,11 @@ async function prepareClassicFaceImage(file){
 }
 function classicFaceText(report){
  const lines=[report.impression.headline,report.impression.text,'','얼굴형 · '+report.faceShape.name,report.faceShape.text,'','삼정'];
- for(const z of report.samjeong)lines.push(CLASSIC_FACE_ZONES[z.id][0]+' · '+z.observation+' '+z.reading);
- lines.push('','오관');for(const f of report.ogwan)lines.push(CLASSIC_FACE_FEATURES[f.id][0]+(f.shapeName?'('+f.shapeName+')':'')+' · '+f.observation+' '+f.reading);
- lines.push('','십이궁');for(const p of report.palaces)lines.push(CLASSIC_FACE_PALACES[p.id][0]+' · '+p.reading);
- lines.push('','시기별 주제');for(const s of report.stages)lines.push(CLASSIC_FACE_STAGES[s.id][0]+' · '+s.reading);
- lines.push('','살펴볼 결');for(const t of report.themes)lines.push(CLASSIC_FACE_THEMES[t.id]+' · '+t.reading);
+ for(const z of report.samjeong)lines.push(CLASSIC_FACE_ZONES[z.id][0]+' · '+(z.visible?z.observation+' '+z.reading:CLASSIC_FACE_HIDDEN));
+ lines.push('','오관');for(const f of report.ogwan)lines.push(CLASSIC_FACE_FEATURES[f.id][0]+(f.shapeName?'('+f.shapeName+')':'')+' · '+(f.visible?f.observation+' '+f.reading:CLASSIC_FACE_HIDDEN));
+ lines.push('','십이궁');for(const p of report.palaces)lines.push(CLASSIC_FACE_PALACES[p.id][0]+' · '+(p.visible?p.observation+' '+p.reading:CLASSIC_FACE_HIDDEN));
+ lines.push('','시기별 주제');for(const s of report.stages)lines.push(CLASSIC_FACE_STAGES[s.id][0]+' · '+s.basis+' '+s.reading);
+ lines.push('','살펴볼 결');for(const t of report.themes)lines.push(CLASSIC_FACE_THEMES[t.id]+' · '+t.basis+' '+t.reading);
  lines.push('','오늘의 한 걸음',report.advice);return lines.join('\n');
 }
 function renderClassicFace(report,model){
@@ -46,11 +47,11 @@ function renderClassicFace(report,model){
  const head=el('div',undefined,'classic-face-head');head.append(el('span','고전 관상 풀이 · AI','eyebrow'),el('h3',report.impression.headline),el('p',report.impression.text));root.append(head);
  const shape=el('article',undefined,'classic-face-card');shape.append(el('h4','얼굴형 · '+report.faceShape.name),el('p',report.faceShape.text));root.append(shape);
  const group=(title,sub,rows,open)=>{const d=el('details',undefined,'classic-face-group');d.open=!!open;d.append(el('summary',title),el('small',sub));for(const [name,note,body] of rows){const row=el('div',undefined,'classic-face-row');row.append(el('h4',name));if(note)row.append(el('small',note));for(const b of body)row.append(el('p',b));d.append(row);}root.append(d);};
- group('삼정(三停) · 얼굴을 세 구간으로 보기','삼재(天人地)에 대응하는 三才圖會의 틀',report.samjeong.map(z=>[CLASSIC_FACE_ZONES[z.id][0],CLASSIC_FACE_ZONES[z.id][1],[z.observation,z.reading]]),true);
- group('오관(五官) · 다섯 부위의 모양','三才圖會 五官之圖의 이름을 따랐어요',report.ogwan.map(f=>[CLASSIC_FACE_FEATURES[f.id][0]+(f.shapeName?' · '+f.shapeName:''),CLASSIC_FACE_FEATURES[f.id][1],[f.observation,f.reading]]));
- group('십이궁(十二宮) · 열 개의 자리','건강을 뜻하는 질액궁은 풀지 않았어요',report.palaces.map(p=>[CLASSIC_FACE_PALACES[p.id][0],CLASSIC_FACE_PALACES[p.id][1],[p.reading]]));
- group('초년·중년·말년 · 시기별 주제','삼정에 대응하는 전통적 주제이며 실제 사건의 예측이 아니에요',report.stages.map(s=>[CLASSIC_FACE_STAGES[s.id][0],CLASSIC_FACE_STAGES[s.id][1],[s.reading]]));
- group('재물·일·관계·기질 · 살펴볼 결','수익이나 결과를 알려 주는 것이 아니에요',report.themes.map(t=>[CLASSIC_FACE_THEMES[t.id],'',[t.reading]]));
+ group('삼정(三停) · 얼굴을 세 구간으로 보기','삼재(天人地)에 대응하는 三才圖會의 틀',report.samjeong.map(z=>[CLASSIC_FACE_ZONES[z.id][0],CLASSIC_FACE_ZONES[z.id][1],z.visible?[z.observation,z.reading]:[CLASSIC_FACE_HIDDEN]]),true);
+ group('오관(五官) · 다섯 부위의 모양','三才圖會 五官之圖의 이름을 따랐어요',report.ogwan.map(f=>[CLASSIC_FACE_FEATURES[f.id][0]+(f.shapeName?' · '+f.shapeName:''),CLASSIC_FACE_FEATURES[f.id][1],f.visible?[f.observation,f.reading]:[CLASSIC_FACE_HIDDEN]]));
+ group('십이궁(十二宮) · 열 개의 자리','건강을 뜻하는 질액궁은 풀지 않았어요',report.palaces.map(p=>[CLASSIC_FACE_PALACES[p.id][0],CLASSIC_FACE_PALACES[p.id][1],p.visible?[p.observation,p.reading]:[CLASSIC_FACE_HIDDEN]]));
+ group('초년·중년·말년 · 시기별 주제','삼정에 대응하는 전통적 주제이며 실제 사건의 예측이 아니에요',report.stages.map(s=>[CLASSIC_FACE_STAGES[s.id][0],CLASSIC_FACE_STAGES[s.id][1],['사진 근거 · '+s.basis,s.reading]]));
+ group('재물·일·관계·기질 · 살펴볼 결','수익이나 결과를 알려 주는 것이 아니에요',report.themes.map(t=>[CLASSIC_FACE_THEMES[t.id],'',['사진 근거 · '+t.basis,t.reading]]));
  const advice=el('aside',undefined,'blessing');advice.append(el('small','TODAY · 오늘의 한 걸음'),el('p',report.advice));root.append(advice);
  root.append(el('p','전통 상징을 AI가 풀어쓴 성찰용 풀이입니다. 사진 한 장으로 사람의 성격·재산·건강·미래를 알 수 없으며, 오류가 있을 수 있어요. 출처 틀 · 三才圖會 人相類(1609)와 冰鑑의 공개 원문. 개별 서적의 조문을 인용한 것은 아니에요.','hint'));
  root.append(el('p','생성: '+new Date().toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})+' (한국시간) · '+model,'hint classic-face-meta'));

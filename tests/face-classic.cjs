@@ -20,8 +20,8 @@ const ids=o=>Object.keys(o);
 const zones=ids(run('CLASSIC_FACE_ZONES')),features=ids(run('CLASSIC_FACE_FEATURES')),palaces=ids(run('CLASSIC_FACE_PALACES')),stages=ids(run('CLASSIC_FACE_STAGES')),themes=ids(run('CLASSIC_FACE_THEMES'));
 const xss='<img src=x onerror=alert(1)> 글자는 실행하지 않습니다.';
 const face={status:'ok',impression:{type:'清秀',headline:'맑고 차분한 인상',text:'전통 상징을 AI가 풀어쓴 성찰용 풀이입니다. '+xss},faceShape:{name:'타원형',text:'둥글고 길어요.'},
- samjeong:zones.map(id=>({id,observation:'보이는 모습',reading:'전통에서는 균형으로 봅니다.'})),ogwan:features.map(id=>({id,shapeName:id==='brow'?'新月眉':'',observation:'보이는 모습',reading:'전통 해석'})),
- palaces:palaces.map(id=>({id,reading:'전통 해석'})),stages:stages.map(id=>({id,reading:'전통 해석'})),themes:themes.map(id=>({id,reading:'전통 해석'})),advice:'오늘 천천히 숨을 쉬어 보세요.'};
+ samjeong:zones.map(id=>({id,visible:id!=='upper',observation:id==='upper'?'':'보이는 모습',reading:id==='upper'?'':'전통에서는 균형으로 봅니다.'})),ogwan:features.map(id=>({id,visible:id!=='ear',shapeName:id==='brow'?'新月眉':'',observation:id==='ear'?'':'보이는 모습',reading:id==='ear'?'':'전통 해석'})),
+ palaces:palaces.map(id=>({id,visible:id!=='career',observation:id==='career'?'':'보이는 모습',reading:id==='career'?'':'전통 해석'})),stages:stages.map(id=>({id,basis:'코끝이 둥글어요',reading:'전통 해석'})),themes:themes.map(id=>({id,basis:'눈썹이 짙어요',reading:'전통 해석'})),advice:'오늘 천천히 숨을 쉬어 보세요.'};
 w.fetch=async(url,opts)=>{calls.push({url,opts});return {ok:true,json:async()=>({face,model:'gemini-test'})};};
 q('#classicFaceConsent').checked=true;await q('#generateClassicFace').onclick();
 assert.equal(calls.length,1);assert.equal(calls[0].url,'https://project.example/functions/v1/saju-ai');
@@ -29,7 +29,7 @@ assert.ok(calls[0].opts.headers.Authorization.startsWith('Bearer '));assert.equa
 const sent=JSON.parse(calls[0].opts.body);assert.deepEqual(Object.keys(sent),['face']);assert.equal(sent.face.image.mime,'image/jpeg');assert.ok(sent.face.image.data.startsWith('/9j/'));assert.deepEqual(Object.keys(sent.face.image).sort(),['data','mime']);
 assert.equal(w.document.querySelectorAll('.classic-face-group').length,5);assert.equal(w.document.querySelectorAll('.classic-face-row').length,3+5+10+3+4);
 assert.equal(q('#classicFaceOutput img'),null,'model text is never parsed as HTML');assert.ok(q('#classicFaceOutput').textContent.includes('<img src=x'));
-assert.ok(q('#classicFaceOutput').textContent.includes('新月眉'));assert.ok(!q('#classicFaceOutput').textContent.includes('疾厄'));
+assert.ok(q('#classicFaceOutput').textContent.includes('新月眉'));assert.ok(q('#classicFaceOutput').textContent.includes('가려져 있거나'),'hidden parts are marked, not guessed');assert.ok(q('#classicFaceOutput').textContent.includes('사진 근거 · 코끝이 둥글어요'));assert.ok(!q('#classicFaceOutput').textContent.includes('疾厄'));
 // Saving stores text only, never the photo.
 [...w.document.querySelectorAll('#classicFaceOutput .actions button')][0].click();const journal=w.localStorage.getItem('ondo-journal-v1');assert.ok(journal.includes('관상 · 고전 풀이 AI'));assert.ok(!journal.includes('/9j/')&&!journal.includes('blob:'));
 // Refusals show a message and render no reading.
