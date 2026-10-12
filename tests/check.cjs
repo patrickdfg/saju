@@ -19,3 +19,10 @@ run("selected=[0,13,16];renderTarot()");assert.ok(node('#tarotResult').innerHTML
 run("renderSaju(calcSaju('2000-01-07','12:00',false),'2000-01-07','12:00',false)");assert.ok(node('#sajuResult').innerHTML.includes('새로운 것을 배우고'));assert.ok(!node('#sajuResult').innerHTML.includes('#7b9e82과'));
 run('saveRecord(currentTarot);saveRecord(currentTarot);saveRecord(currentSaju)');assert.equal(run('getRecords().length'),2);run('renderRecords()');assert.ok(node('#records').innerHTML.includes('나의 생각과 감사'));
 console.log('PASS: pillars, midnight/hour and Korean solar-term boundaries, unknown birth time, element counts, HTML escaping, unique tarot deck, reading render, saved-record deduplication.');
+vm.runInContext(fs.readFileSync(require.resolve('../face.js'),'utf8'),context);
+node('#expressionGoal').value='warm';run('renderFace()');assert.ok(node('#faceResult').innerHTML.includes('얼굴 분석 결과가 아닙니다'));
+run('saveRecord(currentFace)');assert.equal(run('getRecords().length'),3);
+assert.deepEqual(JSON.parse(run('JSON.stringify(Object.keys(currentFace).sort())')),['blessing','question','text','title','type']);
+assert.ok(!run('JSON.stringify(currentFace)').includes('blob:'));
+node('#expressionGoal').value='calm';run('renderFace()');assert.ok(node('#faceResult').innerHTML.includes('차분하고 자연스럽게'));
+console.log('PASS: expression selection, photo-free result generation, text-only saved record.');
