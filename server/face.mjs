@@ -36,12 +36,15 @@ C. 일반 전통 해설(개별 원문 조문은 확인하지 못함)
 
 [작성 규칙]
 - 모든 문장은 한국어 존댓말입니다. 한자 용어는 한글 뒤 괄호에 한 번만 쓰고 바로 쉬운 말로 풀어 주세요. 마크다운과 HTML은 쓰지 마세요.
-- observation은 사진에서 실제로 보이는 형태를 한두 문장으로 묘사하고, reading은 그 형태를 전통에서 어떻게 읽는지 두세 문장으로 설명하되 "전통에서는 ~로 봅니다"처럼 해석의 출처가 전통임을 드러내세요. 사진에서 보이지 않는 부위는 "사진에서 확인하기 어려워요"라고 쓰세요.
+- 이 사진 속 사람에게만 해당하는 내용만 쓰세요. 누구에게나 맞는 일반론, 전통 관상학 개론, 부위의 일반적 의미 설명("보통 ~는 ~를 뜻합니다")은 쓰지 마세요.
+- observation에는 사진에서 실제로 보이는 구체적 특징(길이, 폭, 곡선, 높낮이, 살집, 간격, 좌우 차이, 눈매의 방향 등)을 한두 문장으로 쓰세요. 보이지 않거나 뚜렷한 특징이 없으면 "뚜렷한 특징이 보이지 않아요"라고 쓰고 reading은 한 문장으로 짧게 쓰세요.
+- 모든 reading(삼정, 오관, 십이궁, 시기별 주제, 재물·사업·관계·기질)은 반드시 그 사람의 구체적 특징을 먼저 짚고 "그래서 전통에서는 이렇게 읽는다"로 잇는 한두 문장이어야 합니다. 특징을 짚지 못하면 그 항목은 짧게 쓰고 억지로 채우지 마세요. 같은 문장이나 같은 구조를 항목마다 반복하지 마세요.
+- "전통에서는 ~로 봅니다" 같은 면책성 문구는 impression.text에서 한 번만 쓰고 나머지에서는 반복하지 마세요. 사진에서 보이지 않는 부위는 "사진에서 확인하기 어려워요"라고 쓰세요.
 - 전통 원문의 흉한 결론, 곧 빈궁·요절·질병·형벌·이혼·자식 문제·배우자 불화·도둑질·음란 등은 사람에게 적용하지 마세요. 그런 형태라도 "균형을 챙기면 좋은 부분"이나 "스스로 살펴볼 점"으로 바꿔 쓰세요. 좋은 형태도 보장으로 쓰지 말고 "살리면 좋은 강점"으로 쓰세요.
 - 금지 목록입니다. 확정적 성격 진단, 미래 사건과 시기 예측, 건강·질병·임신·정신 상태 판단, 나이·성별·인종·출신·종교·성적 지향 추측, 외모 점수나 순위, 투자·창업·결혼·채용 판단, 불안이나 의존을 조장하는 말입니다.
 - 재물운(財帛宮, 準頭)과 사업운은 돈을 대하는 태도, 일을 밀고 가는 방식, 협력하는 방식의 관점으로 쓰고 수익이나 손실을 예고하지 마세요. 초·중·말년은 삼정에 대응하는 "전통적 주제"이며 실제 인생의 사건이 아닙니다.
 - 첫 impression.text는 이것이 전통 상징을 AI가 풀어쓴 성찰용 풀이이고 사진 한 장으로 사람을 판단할 수 없다는 점을 한 문장으로 밝히세요. advice는 오늘 해 볼 수 있는 작은 실천 두세 문장으로 끝내고 감사나 평안의 말을 담되 종교적 예언은 하지 마세요.
-- palaces는 ming, wealth, career, virtue, home, sibling, children, spouse, travel, servants 10개를 각각 한 번씩, samjeong은 upper, middle, lower 3개, ogwan은 brow, eye, ear, nose, mouth 5개, stages는 early, middle, late 3개, themes는 wealth, business, relationships, temperament 4개를 모두 채웁니다. 각 문자열은 300자 이내로 쓰세요.`;
+- palaces는 ming, wealth, career, virtue, home, sibling, children, spouse, travel, servants 10개를 각각 한 번씩, samjeong은 upper, middle, lower 3개, ogwan은 brow, eye, ear, nose, mouth 5개, stages는 early, middle, late 3개, themes는 wealth, business, relationships, temperament 4개를 모두 채웁니다. 각 문자열은 200자 이내로 쓰세요.`;
 
 const str = { type: 'STRING' };
 const item = (ids, extra = {}) => ({ type: 'ARRAY', items: { type: 'OBJECT', required: ['id', ...Object.keys(extra), 'reading'], properties: { id: { type: 'STRING', enum: ids }, ...Object.fromEntries(Object.keys(extra).map(k => [k, str])), reading: str } } });
