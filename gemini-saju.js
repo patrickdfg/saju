@@ -26,10 +26,19 @@ function geminiSajuPayload(r){return {
  selectedStars:selectedSajuStars(r),limitations:r.warnings
 };}
 function geminiSajuError(status){return ({400:'사주 계산 정보를 확인할 수 없어요. 생년월일을 다시 계산해 주세요.',403:'이 앱에서 보낸 요청만 이용할 수 있어요.',413:'전송할 정보가 너무 많아요. 다시 계산해 주세요.',429:'오늘의 이용 한도에 도달했거나 요청 간격이 짧아요. 잠시 후 또는 내일 다시 이용해 주세요.',503:'AI 상세 풀이를 준비 중이에요. 기본 사주 풀이는 계속 이용할 수 있어요.'})[status]||(status>=500?'AI 서비스가 일시적으로 응답하지 않아요. 잠시 후 다시 시도해 주세요.':'요청을 완료하지 못했어요. 잠시 후 다시 시도해 주세요.');}
-function geminiSajuEndpoint(){try{const value=window.ONDO_AI_ENDPOINT||'';if(!value)return '';const url=new URL(value);return url.protocol==='https:'&&!url.username&&!url.password&&!url.search&&!url.hash&&url.pathname==='/api/saju'?url.href:'';}catch{return '';}}
+function geminiSajuEndpoint(){try{const value=window.ONDO_AI_ENDPOINT||'';if(!value)return '';const url=new URL(value);return url.protocol==='https:'&&!url.username&&!url.password&&!url.search&&!url.hash&&(url.pathname==='/api/saju'||url.pathname==='/functions/v1/saju-ai')?url.href:'';}catch{return '';}}
+let sajuBrowserClient='';
+function geminiSajuHeaders(){
+ const headers={'Content-Type':'application/json'};
+ if(window.ONDO_AI_PUBLIC_TOKEN){headers.apikey=window.ONDO_AI_PUBLIC_TOKEN;headers.Authorization='Bearer '+window.ONDO_AI_PUBLIC_TOKEN;
+  if(!sajuBrowserClient){try{sajuBrowserClient=localStorage.getItem('ondo-ai-client-v1')||'';}catch{}
+   if(!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(sajuBrowserClient)){sajuBrowserClient=crypto.randomUUID();try{localStorage.setItem('ondo-ai-client-v1',sajuBrowserClient);}catch{}}
+  }headers['X-Saju-Client']=sajuBrowserClient;
+ }return headers;
+}
 function mountGeminiSaju(r){
  cancelGeminiSaju();const host=document.createElement('section');host.className='gemini-saju panel';host.id='geminiSaju';
- host.innerHTML=`<span class="eyebrow">GEMINI · AI 상세 해설</span><h2>나를 알아가는 9가지 이야기</h2><p>상세 만세력을 Gemini가 항목별로 길게 풀어드립니다. 아래 9개 이야기를 한 번에 생성해요.</p><div class="gemini-chapter-preview">${GEMINI_SAJU_SECTIONS.map((s,i)=>`<div><small>${String(i+1).padStart(2,'0')}</small><span>${s[1]}</span></div>`).join('')}</div><p class="hint">‘타고난’과 ‘운’은 전통 분류명입니다. 능력이나 미래 결과를 확정하는 뜻은 아닙니다.</p><p class="hint">운영자가 제공하는 AI 풀이입니다. API 키 입력 없이 이용할 수 있어요. 같은 접속 IP는 하루 3회, 전체는 하루 30회까지 제공하며 한국시간 자정에 갱신됩니다. 같은 Wi-Fi를 쓰면 이용 횟수를 함께 계산할 수 있어요.</p><details class="gemini-settings"><summary>AI 풀이에 전송할 정보 확인</summary><p>사주 기둥·오행·십신·지장간·합충·대운 등 아래 계산 결과가 온도 운영 서버를 거쳐 Google Gemini API로 전송됩니다. 생년월일 원문·이름·사진·기록은 포함하지 않습니다. 사주 글자도 개인과 관련된 정보이므로 내용을 확인해 주세요.</p><pre id="geminiPayloadPreview"></pre><p class="hint">Google의 API 이용 조건과 데이터 처리 정책이 적용됩니다. 운영 서버는 사주 내용과 풀이를 저장하지 않으며, 이용 제한을 위해 접속 IP를 일별 식별값으로 바꿔 횟수를 계산합니다.</p></details><label class="check"><input id="geminiSajuConsent" type="checkbox"> 위 사주 계산 결과를 운영 서버와 Google에 보내 AI 해설을 생성합니다.</label><div class="actions"><button id="generateGeminiSaju" class="primary" type="button">Gemini로 상세 풀이 생성 ✦</button><button id="cancelGeminiSaju" class="secondary" type="button" hidden>생성 중단</button></div><p id="geminiSajuStatus" role="status"></p><p id="geminiSajuError" role="alert"></p><div id="geminiSajuOutput"></div>`;
+ host.innerHTML=`<span class="eyebrow">GEMINI · AI 상세 해설</span><h2>나를 알아가는 9가지 이야기</h2><p>상세 만세력을 Gemini가 항목별로 길게 풀어드립니다. 아래 9개 이야기를 한 번에 생성해요.</p><div class="gemini-chapter-preview">${GEMINI_SAJU_SECTIONS.map((s,i)=>`<div><small>${String(i+1).padStart(2,'0')}</small><span>${s[1]}</span></div>`).join('')}</div><p class="hint">‘타고난’과 ‘운’은 전통 분류명입니다. 능력이나 미래 결과를 확정하는 뜻은 아닙니다.</p><p class="hint">운영자가 제공하는 AI 풀이입니다. API 키 입력 없이 이용할 수 있어요. 같은 브라우저는 하루 3회, 전체는 하루 30회까지 제공하며 한국시간 자정에 갱신됩니다. 브라우저별 횟수와 별도로 전체 제공 한도가 적용돼요.</p><details class="gemini-settings"><summary>AI 풀이에 전송할 정보 확인</summary><p>사주 기둥·오행·십신·지장간·합충·대운 등 아래 계산 결과가 온도 운영 서버를 거쳐 Google Gemini API로 전송됩니다. 생년월일 원문·이름·사진·기록은 포함하지 않습니다. 사주 글자도 개인과 관련된 정보이므로 내용을 확인해 주세요.</p><pre id="geminiPayloadPreview"></pre><p class="hint">Google의 API 이용 조건과 데이터 처리 정책이 적용됩니다. 운영 서버는 사주 내용과 풀이를 저장하지 않으며, 이용 제한을 위해 무작위 브라우저 번호를 일별 식별값으로 바꿔 횟수를 계산합니다.</p></details><label class="check"><input id="geminiSajuConsent" type="checkbox"> 위 사주 계산 결과를 운영 서버와 Google에 보내 AI 해설을 생성합니다.</label><div class="actions"><button id="generateGeminiSaju" class="primary" type="button">Gemini로 상세 풀이 생성 ✦</button><button id="cancelGeminiSaju" class="secondary" type="button" hidden>생성 중단</button></div><p id="geminiSajuStatus" role="status"></p><p id="geminiSajuError" role="alert"></p><div id="geminiSajuOutput"></div>`;
  $('#sajuResult .expert-saju').insertAdjacentElement('afterend',host);const q=s=>host.querySelector(s),payload=geminiSajuPayload(r);q('#geminiPayloadPreview').textContent=JSON.stringify(payload,null,2);
  let generatedRecord=null;const baseQuestion=currentSaju.question;
  const endpoint=geminiSajuEndpoint();
@@ -42,7 +51,7 @@ function mountGeminiSaju(r){
   const controller=new AbortController();sajuGeminiRequest=controller;let timedOut=false;const timeout=setTimeout(()=>{timedOut=true;controller.abort();},90000);
   q('#generateGeminiSaju').disabled=true;q('#cancelGeminiSaju').hidden=false;q('#geminiSajuStatus').textContent='Gemini가 만세력을 쉽게 풀어쓰고 있어요. 잠시 기다려 주세요.';q('#geminiSajuOutput').setAttribute('aria-busy','true');
   try{
-   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},credentials:'omit',referrerPolicy:'no-referrer',signal:controller.signal,body:JSON.stringify({payload})});
+   const response=await fetch(endpoint,{method:'POST',headers:geminiSajuHeaders(),credentials:'omit',referrerPolicy:'no-referrer',signal:controller.signal,body:JSON.stringify({payload})});
    if(!response.ok)throw Error(geminiSajuError(response.status));const result=await response.json();
    const model=typeof result.model==='string'?result.model:'Gemini';
    if(controller.signal.aborted||!host.isConnected)return;

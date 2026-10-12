@@ -92,7 +92,7 @@ export function normalizeReport(result) {
   });
 }
 
-export async function handleRequest(request, env, upstream = fetch) {
+export async function handleRequest(request, env, upstream = fetch, clientIdentity = null) {
   const origin = request.headers.get('Origin'), allowed = env.ALLOWED_ORIGIN;
   const cors = origin === allowed ? { 'Access-Control-Allow-Origin': allowed, 'Vary': 'Origin' } : {};
   const reply = (body, status = 200, headers = {}) => json(body, status, { ...cors, ...headers });
@@ -110,7 +110,7 @@ export async function handleRequest(request, env, upstream = fetch) {
   catch (e) { return reply({ error: 'invalid_body' }, e.message === 'large' ? 413 : 400); }
   if (!input || Object.keys(input).length !== 1 || !validatePayload(input.payload)) return reply({ error: 'invalid_chart' }, 400);
   // Trust only Cloudflare's edge-supplied IP, never a body field or X-Forwarded-For.
-  const ip = request.headers.get('CF-Connecting-IP');
+  const ip = clientIdentity || request.headers.get('CF-Connecting-IP');
   if (!ip) return reply({ error: 'client_unknown' }, 503);
   try {
     const hmac = await crypto.subtle.importKey('raw', new TextEncoder().encode(env.GEMINI_API_KEY), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
