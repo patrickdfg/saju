@@ -1,0 +1,21 @@
+const vm=require('node:vm'),fs=require('node:fs'),assert=require('node:assert/strict'),crypto=require('node:crypto').webcrypto;
+const nodes=new Map();
+function node(s){if(!nodes.has(s))nodes.set(s,{value:'',hidden:false,checked:false,innerHTML:'',textContent:'',dataset:{},classList:{add(){},remove(){},toggle(){}},setAttribute(){},removeAttribute(){},scrollIntoView(){},addEventListener(){}});return nodes.get(s);}
+const db=new Map();const context={console,crypto,Date,setTimeout,clearTimeout,Uint32Array,Solar:require('../vendor/lunar.js').Solar,document:{querySelector:node,querySelectorAll:()=>[],addEventListener(){}},window:{addEventListener(){},scrollTo(){}},location:{hash:''},history:{replaceState(){}},localStorage:{getItem:k=>db.get(k)||null,setItem:(k,v)=>db.set(k,v)},confirm:()=>true};vm.createContext(context);vm.runInContext(fs.readFileSync(require.resolve('../app.js'),'utf8'),context);
+const run=s=>vm.runInContext(s,context);
+assert.equal(run("calcSaju('2000-01-07','12:00',false).pillars[2]"),'甲子');
+assert.equal(run("calcSaju('2000-01-07','12:00',false).pillars[3]"),'庚午');
+assert.equal(run("calcSaju('2000-01-07','23:30',false).pillars[2]"),'甲子');
+assert.equal(run("calcSaju('2000-01-07','23:30',false).pillars[3]"),'甲子');
+assert.equal(run("calcSaju('2000-01-08','00:00',false).pillars[2]"),'乙丑');
+assert.equal(run("calcSaju('2024-02-04','16:00',false).pillars[0]"),'癸卯');
+assert.equal(run("calcSaju('2024-02-04','18:00',false).pillars[0]"),'甲辰');
+assert.equal(run("calcSaju('2000-01-07','',true).pillars[3]"),null);
+assert.equal(run("calcSaju('2000-01-07','',true).counts.reduce((a,b)=>a+b,0)"),6);
+assert.equal(run("calcSaju('2000-01-07','12:00',false).counts.reduce((a,b)=>a+b,0)"),8);
+assert.equal(run("escapeHtml('<script>')"),'&lt;script&gt;');
+run('shuffleDeck()');assert.equal(run('new Set(deck).size'),22);assert.equal(run('selected.length'),0);
+run("selected=[0,13,16];renderTarot()");assert.ok(node('#tarotResult').innerHTML.includes('불행의 예고가 아니라'));
+run("renderSaju(calcSaju('2000-01-07','12:00',false),'2000-01-07','12:00',false)");assert.ok(node('#sajuResult').innerHTML.includes('새로운 것을 배우고'));assert.ok(!node('#sajuResult').innerHTML.includes('#7b9e82과'));
+run('saveRecord(currentTarot);saveRecord(currentTarot);saveRecord(currentSaju)');assert.equal(run('getRecords().length'),2);run('renderRecords()');assert.ok(node('#records').innerHTML.includes('나의 생각과 감사'));
+console.log('PASS: pillars, midnight/hour and Korean solar-term boundaries, unknown birth time, element counts, HTML escaping, unique tarot deck, reading render, saved-record deduplication.');
