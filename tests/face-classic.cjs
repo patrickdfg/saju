@@ -39,6 +39,7 @@ for(const [status,hint] of [['no_face','얼굴을 찾지'],['multiple_faces','�
 // Malformed model output and server errors are rejected without leaking.
 w.fetch=async()=>({ok:true,json:async()=>({face:{...face,palaces:face.palaces.slice(1)}})});await q('#generateClassicFace').onclick();assert.ok(q('#classicFaceError').textContent.includes('형식'));
 w.fetch=async()=>({ok:false,status:429});await q('#generateClassicFace').onclick();assert.ok(q('#classicFaceError').textContent.includes('한도'));assert.equal(q('#generateClassicFace').disabled,false);
+w.fetch=async()=>({ok:false,status:400});await q('#generateClassicFace').onclick();assert.ok(q('#classicFaceError').textContent.includes('업데이트'));
 w.fetch=async()=>({ok:false,status:413});await q('#generateClassicFace').onclick();assert.ok(q('#classicFaceError').textContent.length>0);
 // Cancel works, and removing the photo aborts a pending request.
 w.fetch=(url,opts)=>new Promise((resolve,reject)=>opts.signal.addEventListener('abort',()=>reject(new w.DOMException('aborted','AbortError'))));

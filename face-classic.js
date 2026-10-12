@@ -7,6 +7,7 @@ const CLASSIC_FACE_STAGES={early:['초년','상정에 대응하는 주제'],midd
 const CLASSIC_FACE_THEMES={wealth:'재물을 대하는 결',business:'일과 사업을 밀고 가는 결',relationships:'사람을 대하는 결',temperament:'기질과 표현'};
 const CLASSIC_FACE_REFUSALS={no_face:'얼굴을 찾지 못했어요. 얼굴이 정면에서 잘 보이는 사진을 골라 주세요.',multiple_faces:'사진에 얼굴이 둘 이상 있어요. 한 사람만 나온 사진을 골라 주세요.',minor:'어린이·청소년으로 보이는 사진은 풀이하지 않아요.',low_quality:'사진이 어둡거나 흐려서 부위를 구분하기 어려워요. 밝은 곳에서 다시 찍어 주세요.'};
 let classicFaceRequest=null;
+function classicFaceError(status){if(status===400)return '서버가 사진 풀이 요청을 받아들이지 못했어요. 운영 서버가 아직 업데이트되지 않았을 수 있어요.';if(status===413)return '사진 용량이 너무 커요. 더 작은 사진을 골라 주세요.';return geminiSajuError(status);}
 function cancelClassicFace(){if(classicFaceRequest){classicFaceRequest.abort();classicFaceRequest=null;}}
 function classicFaceTextOk(v,max){return typeof v==='string'&&v.trim().length>0&&v.length<=max;}
 function parseClassicFaceReport(data){
@@ -76,7 +77,7 @@ function mountClassicFace(){
    if(controller.signal.aborted)return;
    q('#classicFaceStatus').textContent='Gemini가 고전의 틀로 읽고 있어요. 잠시 기다려 주세요.';
    const response=await fetch(endpoint,{method:'POST',headers:geminiSajuHeaders(),credentials:'omit',referrerPolicy:'no-referrer',signal:controller.signal,body:JSON.stringify({face:{image:{mime:'image/jpeg',data}}})});
-   if(!response.ok)throw Error(geminiSajuError(response.status));
+   if(!response.ok)throw Error(classicFaceError(response.status));
    const result=await response.json();if(controller.signal.aborted||!host.isConnected)return;
    const report=parseClassicFaceReport(result.face),model=typeof result.model==='string'?result.model:'Gemini',out=q('#classicFaceOutput');
    if(report.status!=='ok'){out.textContent='';q('#classicFaceStatus').textContent='';q('#classicFaceError').textContent=CLASSIC_FACE_REFUSALS[report.status];return;}
