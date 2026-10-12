@@ -52,3 +52,35 @@ button.tarot-art:hover{transform:translateY(-4px);box-shadow:0 16px 30px #35223a
 .gemini-result{margin-top:20px;padding:0;background:none;border:0;border-radius:0}
 .gemini-chapter{margin:0;padding:16px 0;background:none;border:0;border-top:1px solid #e2dbe9;border-radius:0}
 .gemini-chapter:last-child{border-bottom:1px solid #e2dbe9}
+/* 가독성: 글자 크기와 대비의 하한을 맞추고 핵심 문구를 앞세운다. 측정 기준은 최소 12px, 본문 대비 4.5:1 이상이다. */
+:root{--muted:#5f5769}
+body{line-height:1.7}
+p,li{line-height:1.75}
+.eyebrow{font-size:12px;letter-spacing:.06em;color:var(--purple);font-weight:600}
+small{font-size:13px}
+.hint{font-size:13.5px;line-height:1.7}
+header .brand small{font-size:12px;color:var(--muted)}
+footer small{font-size:13px;line-height:1.8;color:var(--muted)}
+footer details{font-size:13px}
+th,.pillar-detail,.easy-birth,.easy-element-grid small{font-size:12.5px}
+.easy-birth,th{color:var(--muted)}
+.easy-element-grid b{color:var(--ink)!important}
+.gemini-chapter>small{color:#7a5f2c;font-size:13px}
+nav button,.chip,.secondary,.primary,summary{min-height:44px}
+/* 핵심 문구: 결과 카드의 제목을 키우고 설명은 한 단계 낮춘다. */
+#dailySaju h2,.saju-easy-hero h2{font-size:26px;line-height:1.4;color:var(--ink)}
+#dailySaju>p,.saju-easy-hero>p{color:var(--muted)}
+#sajuProfile{padding:16px 20px}
+/* 사주 결과 바로가기 */
+.saju-nav{display:flex;gap:8px;overflow-x:auto;padding:4px 0 14px;margin:0 0 6px;scrollbar-width:none}
+.saju-nav::-webkit-scrollbar{display:none}
+.saju-nav button{flex:0 0 auto;padding:8px 16px;border-radius:999px;border:1px solid #d9d0e0;background:#fff;color:var(--purple);font-size:14px;font-weight:600;cursor:pointer}
+.saju-nav button:active{background:#efe8f4}
+.blessing small{font-size:12px;color:#5d4f72;letter-spacing:.04em}
+.easy-takeaways small,th small,td small,.gemini-chapter-preview small{font-size:12.5px;color:var(--muted)}
+.pillar small{font-size:12.5px;color:var(--muted)}
+/* 오늘의 사주 카드: 카드 안의 흰 상자를 풀고 구분선만 둔다. */
+.easy-daily-grid{gap:0;margin-top:14px}
+.easy-daily-grid article{background:none;border:0;border-top:1px solid #e3d8c6;border-radius:0;padding:14px 0}
+.easy-daily-grid small{color:#6d5560}
+.daily-saju-card .blessing{background:none;border:0;border-top:1px solid #e3d8c6;border-radius:0;padding:14px 0 0}
