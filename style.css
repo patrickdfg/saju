@@ -28,3 +28,5 @@ button.tarot-art:hover{transform:translateY(-4px);box-shadow:0 16px 30px #35223a
 .card-dialog::backdrop{background:#20152cce;backdrop-filter:blur(6px)}
 .card-dialog form{text-align:right;margin-bottom:12px}.card-dialog h2{font-size:20px;margin:14px 0 0}.card-dialog .dialog-art .mini{max-width:300px;width:min(65vw,300px)}
 @media(max-width:680px){.tarot-reading{grid-template-columns:1fr}.tarot-reading>.tarot-art{max-width:210px;margin:0 auto 8px}.catalog-card{padding:10px}.tarot-art.illustrated{padding:6px}.art-caption{font-size:9px}.hero-art{height:380px}.hero-art .art-card.front{width:170px}.deck button{font-size:32px}.deck button::after{font-size:8px;letter-spacing:1px}}
+
+.photo-actions{display:grid;gap:10px;margin-top:18px}.photo-actions .primary{margin:0;width:100%}.photo-actions .secondary{width:100%;padding:11px}
