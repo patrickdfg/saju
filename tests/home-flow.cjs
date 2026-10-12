@@ -1,0 +1,25 @@
+// 첫 화면 오늘의 흐름 카드: 생일 저장 전 안내, 저장 후 이름·날짜·5일 지수·한 줄, 날짜 선택, 삭제 시 초기화를 검사한다.
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),{JSDOM}=require('jsdom');
+const base=path.resolve(__dirname,'..');
+const d=new JSDOM(fs.readFileSync(path.join(base,'index.html'),'utf8'),{url:'https://example.test/#home',runScripts:'outside-only'}),w=d.window;
+w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};w.confirm=()=>true;
+const run=s=>vm.runInContext(s,d.getInternalVMContext()),q=s=>w.document.querySelector(s);
+for(const el of w.document.querySelectorAll('script[src]'))run(fs.readFileSync(path.join(base,el.getAttribute('src').split('?')[0]),'utf8'));
+run("localDay=()=> '2026-10-13'");run('renderHomeFlow()');
+assert.ok(q('#homeFlow .home-flow-empty'),'prompt before a birthday is saved');assert.equal(q('.home-flow-score'),null);
+q('#sajuName').value='<b>김점신</b>';q('#birth').value='2000-01-07';q('#birthTime').value='12:00';q('#rememberSaju').checked=true;
+q('#sajuForm').dispatchEvent(new w.Event('submit',{cancelable:true}));
+assert.equal(q('.home-flow-who-name').textContent,'<b>김점신</b>','name shown as text, never HTML');assert.equal(q('.home-flow-who-name b'),null);
+assert.equal(q('.home-flow-date').textContent,'10월 13일 화요일');
+const tabs=[...w.document.querySelectorAll('.home-flow-tab')];assert.deepEqual(tabs.map(t=>t.textContent),['그제','어제','오늘','내일','모레']);
+assert.equal(tabs[2].getAttribute('aria-selected'),'true');
+const days=run('homeFlowData()');assert.equal(days.length,5);assert.equal(days[2].day,'2026-10-13');assert.equal(days[0].day,'2026-10-11');assert.equal(days[4].day,'2026-10-15');
+assert.ok(days.every(x=>Number.isInteger(x.index)&&x.index>=0&&x.index<=100));
+assert.equal(q('.home-flow-score').textContent,String(days[2].index));assert.equal(q('.home-flow-headline').textContent,days[2].headline);
+assert.equal(JSON.stringify(run('homeFlowData()')),JSON.stringify(days),'same birthday and day give the same index');
+tabs[3].click();assert.equal(q('.home-flow-date').textContent,'10월 14일 수요일');assert.equal(q('.home-flow-score').textContent,String(days[3].index));
+assert.equal(w.document.querySelectorAll('.home-flow-graph path').length,2);
+assert.ok(q('#sajuProfile h3').textContent.includes('김점신'));
+q('.home-flow-change').click();assert.equal(q('#saju').hidden,false,'change goes to the saju page');assert.equal(q('#sajuForm').hidden,false,'and opens the edit form');assert.equal(q('#sajuName').value,'<b>김점신</b>');
+q('#deleteSajuProfile').click();assert.ok(q('#homeFlow .home-flow-empty'),'prompt again after delete');assert.equal(w.localStorage.getItem('ondo-saju-name-v1'),null,'name removed with the birthday');
+d.window.close();console.log('PASS: home flow card prompt, name as text, date and weekday, 5-day deterministic index, day tabs, edit link, and delete reset.');
