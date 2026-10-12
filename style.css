@@ -84,3 +84,23 @@ nav button,.chip,.secondary,.primary,summary{min-height:44px}
 .easy-daily-grid article{background:none;border:0;border-top:1px solid #e3d8c6;border-radius:0;padding:14px 0}
 .easy-daily-grid small{color:#6d5560}
 .daily-saju-card .blessing{background:none;border:0;border-top:1px solid #e3d8c6;border-radius:0;padding:14px 0 0}
+/* 첫 화면 오늘의 흐름 카드: 날짜, 5일 곡선, 흐름 지수, 오늘의 한 줄 */
+.home-flow{max-width:760px;margin:18px auto 8px;padding:22px 20px 20px;background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:0 10px 30px #70517e12}
+.home-flow-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.home-flow-title{margin:0;font-size:20px;font-weight:700;color:var(--ink)}
+.home-flow-who{display:flex;align-items:center;gap:8px;min-width:0}
+.home-flow-who-label{font-size:13px;color:var(--muted);padding-right:8px;border-right:1px solid var(--line)}
+.home-flow-who-name{font-size:15px;color:var(--ink);max-width:9em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-flow-change{min-height:34px;padding:4px 14px;border:0;border-radius:999px;background:var(--ink);color:#fff;font-size:13px;font-weight:600;cursor:pointer}
+.home-flow-date{margin:16px 0 0;font-size:17px;font-weight:600;color:var(--ink)}
+.home-flow-graph{display:block;width:100%;height:120px;margin-top:6px;overflow:visible}
+.home-flow-dot{fill:#fff;stroke:#7a64a8;stroke-width:3}
+.home-flow-tabs{display:flex;justify-content:space-between;margin-top:8px}
+.home-flow-tab{min-height:36px;padding:4px 12px;border:1px solid transparent;border-radius:999px;background:none;color:#7a64a8;font-size:14px;cursor:pointer}
+.home-flow-tab[aria-selected="true"]{border-color:#7a64a8;font-weight:700}
+.home-flow-score{margin:14px 0 0;text-align:center;font-size:64px;line-height:1.1;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+.home-flow-headline{margin:8px auto 0;max-width:22em;text-align:center;font-size:19px;line-height:1.55;font-weight:600;color:var(--ink);word-break:keep-all}
+.home-flow-note{margin:14px 0 0;font-size:13px;line-height:1.7;color:var(--muted);text-align:center;word-break:keep-all}
+.home-flow-more{display:block;margin:14px auto 0}
+.home-flow-empty{padding:18px 0 4px;text-align:center}.home-flow-empty p{margin:0 0 14px;color:var(--muted);word-break:keep-all}
+.saju-name-field{margin-bottom:12px}.saju-name-field input{width:100%;padding:12px;border:1px solid #ddd5e2;border-radius:8px;background:#fbf9fc;font-size:16px;color:var(--ink)}
