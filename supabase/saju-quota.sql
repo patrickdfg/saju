@@ -2,7 +2,7 @@
 create table if not exists public.saju_generation_budget (
   singleton boolean primary key default true check (singleton),
   day date not null,
-  total integer not null default 0 check (total between 0 and 30),
+  total integer not null default 0 check (total between 0 and 1000),
   clients jsonb not null default '{}'::jsonb
 );
 alter table public.saju_generation_budget enable row level security;
@@ -32,7 +32,7 @@ begin
   entry := b.clients -> p_client;
   used := coalesce((entry ->> 'count')::integer, 0);
   last_call := coalesce((entry ->> 'last')::numeric, 0);
-  if b.total >= 30 or used >= 3 or (last_call > 0 and stamp-last_call < 60) then return false; end if;
+  if b.total >= 1000 or used >= 50 or (last_call > 0 and stamp-last_call < 10) then return false; end if;
   update public.saju_generation_budget set
     day=b.day, total=b.total+1,
     clients=jsonb_set(b.clients,array[p_client],jsonb_build_object('count',used+1,'last',stamp),true)

@@ -19,7 +19,7 @@
 
 - 기존 Supabase 프로젝트에 사주 전용 `saju-ai`만 추가했습니다. 기존 함수·비밀키·사용량·회원 권한은 변경하지 않았습니다.
 - 프런트에는 공개 anon JWT만 있습니다. Gemini 키와 service-role 키는 서버에서만 읽습니다. Edge gateway의 JWT 검증을 유지하기 위해 legacy anon JWT를 사용합니다. 이는 공개 프로젝트 식별용이며 회원 인증이 아닙니다.
-- 전체 하루 30회, 같은 브라우저 하루 3회, 60초 간격입니다. 브라우저 구분은 무작위 UUID이므로 데이터 삭제나 다른 브라우저 이용으로 바뀔 수 있습니다. 전체 일일 상한은 서버 DB 행 잠금으로 강제합니다.
+- 전체 하루 1000회, 같은 브라우저 하루 50회, 10초 간격입니다. 기존 DB는 `supabase/saju-quota-raise.sql`을 SQL 편집기에서 한 번 실행해야 바뀝니다. 브라우저 구분은 무작위 UUID이므로 데이터 삭제나 다른 브라우저 이용으로 바뀔 수 있습니다. 전체 일일 상한은 서버 DB 행 잠금으로 강제합니다.
 - KST 자정이 지나 첫 예약에서 전날 식별값·횟수를 교체합니다. 호출 실패와 중단도 차감하며 자동 재시도하지 않습니다. 사주 내용과 결과는 서버 DB에 저장하지 않습니다.
 - `saju_generation_budget` 테이블은 RLS를 켜고 anon/authenticated 접근을 제거했습니다. `saju_reserve_generation`은 SECURITY INVOKER이며 서버 service_role만 실행할 수 있습니다.
 - 앱의 호출 횟수 제한은 금액 한도가 아닙니다. Google/Supabase 정책과 계정별 요금이 적용됩니다.
