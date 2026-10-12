@@ -102,8 +102,13 @@
 
 ## Gemini 상세 보고서 · 9개 항목
 - 사용자 제공 참고 화면의 9개 주제 구성을 반영. 타 서비스의 유료 풀이 본문을 복제하지 않으며, 자체 계산 데이터를 Gemini로 전달해 새 해설을 생성합니다.
-- 기본 요청 모델은 Google 공식 generateContent 예시 기준 `gemini-3.8-flash`; 사용 가능한 모델 ID는 사용자가 변경 가능. API 키·데이터 전송·요금 안내 후 명시적으로 생성하며 자동 호출하지 않습니다.
+- 기본 요청 모델은 Google 공식 generateContent 예시 기준 `gemini-3.8-flash`; 모델 ID와 키는 운영자 서버에서 관리합니다. 데이터 전송 안내 후 명시적으로 생성하며 자동 호출하지 않습니다.
 - 공식 문서: https://ai.google.dev/api/generate-content , https://ai.google.dev/gemini-api/docs/api-key
 - 길성과 신살: golbin/ssaju 리비전 `07b608a778be6dac8669e04b9ab794c441959208`의 `src/analyze.ts` 천을귀인·도화살·화개살 표 3종만 채택. MIT 고지 `vendor/LICENSE-ssaju.txt` 보존. 일간 기준 천을귀인과 일지 기준 도화·화개를 원국 지지에 대조하고 일치 위치를 함께 전달합니다. 연지 기준·기타 신살은 계산하지 않음. 시간 미상은 시주 제외.
 - 상류의 역마 표는 다른 삼합 기준과 차이가 있어 이번 채택 범위에서 제외했습니다.
-- AI 출력은 9개 ID와 문단 배열을 검증해 표시하며 HTML로 실행하지 않습니다. 실제 API 호출 검증은 사용자 키 입력 후 가능.
+- AI 출력은 9개 ID와 문단 배열을 검증해 표시하며 HTML로 실행하지 않습니다. 실제 API 호출 검증은 운영자 서버 배포와 비밀키 등록 후 가능합니다.
+
+## 운영자 공용 Gemini 서버
+- Cloudflare Workers Secret에 운영자 키를 보관하고 Durable Objects 트랜잭션으로 일일 호출 상한을 적용합니다. 서버 코드: `server/worker.mjs`.
+- 공식 문서: https://developers.cloudflare.com/workers/configuration/secrets/ , https://developers.cloudflare.com/durable-objects/api/sqlite-storage-api/
+- 프런트 `ai-config.js`에는 공개 API 주소만 넣습니다. 실제 키는 저장소에 포함하지 않습니다. 서버·키가 미연결이면 준비 중으로 표시합니다.
