@@ -20,8 +20,9 @@ function parseClassicFaceReport(data){
 }
 // 가로세로 1024px 이하 JPEG로 다시 그려 위치·촬영정보 같은 메타데이터를 없애고 용량을 줄인다.
 async function prepareClassicFaceImage(file){
- const bitmap=typeof createImageBitmap==='function'?await createImageBitmap(file):await new Promise((resolve,reject)=>{const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{URL.revokeObjectURL(url);resolve(img);};img.onerror=()=>{URL.revokeObjectURL(url);reject(Error('사진을 열 수 없어요.'));};img.src=url;});
- const width=bitmap.width,height=bitmap.height,scale=Math.min(1,1024/Math.max(width,height)),canvas=document.createElement('canvas');
+ const viaImage=()=>new Promise((resolve,reject)=>{const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{URL.revokeObjectURL(url);resolve(img);};img.onerror=()=>{URL.revokeObjectURL(url);reject(Error('사진을 열 수 없어요. 다른 JPG 또는 PNG 사진을 골라 주세요.'));};img.src=url;});
+ let bitmap;try{if(typeof createImageBitmap!=='function')throw Error('unsupported');bitmap=await createImageBitmap(file);}catch{bitmap=await viaImage();}
+ const width=bitmap.width||bitmap.naturalWidth,height=bitmap.height||bitmap.naturalHeight,scale=Math.min(1,1024/Math.max(width,height)),canvas=document.createElement('canvas');
  canvas.width=Math.max(1,Math.round(width*scale));canvas.height=Math.max(1,Math.round(height*scale));
  const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);if(bitmap.close)bitmap.close();
  for(const quality of [0.85,0.7,0.55]){
