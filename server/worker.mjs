@@ -1,6 +1,8 @@
 import { GEMINI_SAJU_INSTRUCTION, geminiReportSchema, SECTION_IDS } from './report.mjs';
+import { FACE_INSTRUCTION, geminiFaceSchema, normalizeFaceReport, validateFacePayload } from './face.mjs';
 
 const MAX_BODY = 16000;
+const MAX_FACE_BODY = 1500000;
 export const LIMITS = { daily: 30, perIP: 3, cooldown: 60000 };
 const json = (value, status = 200, extra = {}) => new Response(JSON.stringify(value), {
   status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...extra }
@@ -105,10 +107,15 @@ export async function handleRequest(request, env, upstream = fetch, clientIdenti
   if (path !== '/api/saju' || request.method !== 'POST') return reply({ error: 'method' }, 405);
   if (!configured) return reply({ error: 'not_configured' }, 503);
   if (!/^application\/json(?:\s*;|$)/i.test(request.headers.get('Content-Type') || '')) return reply({ error: 'content_type' }, 400);
-  let input;
-  try { input = JSON.parse(await boundedText(request.body, MAX_BODY)); }
+  let input, bodyText;
+  try { bodyText = await boundedText(request.body, MAX_FACE_BODY); }
   catch (e) { return reply({ error: 'invalid_body' }, e.message === 'large' ? 413 : 400); }
-  if (!input || Object.keys(input).length !== 1 || !validatePayload(input.payload)) return reply({ error: 'invalid_chart' }, 400);
+  // Only photo requests may exceed the small chart limit.
+  try { input = JSON.parse(bodyText); }
+  catch { return reply({ error: 'invalid_body' }, bodyText.length > MAX_BODY ? 413 : 400); }
+  const isFace = Boolean(input) && typeof input === 'object' && !Array.isArray(input) && Object.keys(input).length === 1 && Object.hasOwn(input, 'face');
+  if (!isFace && bodyText.length > MAX_BODY) return reply({ error: 'invalid_body' }, 413);
+  if (isFace ? !validateFacePayload(input.face) : (!input || Object.keys(input).length !== 1 || !validatePayload(input.payload))) return reply({ error: isFace ? 'invalid_image' : 'invalid_chart' }, 400);
   // Trust only Cloudflare's edge-supplied IP, never a body field or X-Forwarded-For.
   const ip = clientIdentity || request.headers.get('CF-Connecting-IP');
   if (!ip) return reply({ error: 'client_unknown' }, 503);
@@ -125,11 +132,14 @@ export async function handleRequest(request, env, upstream = fetch, clientIdenti
   try {
     const response = await upstream('https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(env.GEMINI_MODEL) + ':generateContent', {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY }, signal: controller.signal,
-      body: JSON.stringify({ systemInstruction: { parts: [{ text: GEMINI_SAJU_INSTRUCTION }] }, contents: [{ role: 'user', parts: [{ text: JSON.stringify(input.payload) }] }], generationConfig: { maxOutputTokens: 12288, responseMimeType: 'application/json', responseSchema: geminiReportSchema() } })
+      body: JSON.stringify(isFace
+        ? { systemInstruction: { parts: [{ text: FACE_INSTRUCTION }] }, contents: [{ role: 'user', parts: [{ inlineData: { mimeType: 'image/jpeg', data: input.face.image.data } }, { text: '위 사진을 지침에 따라 풀이해 주세요.' }] }], generationConfig: { maxOutputTokens: 8192, responseMimeType: 'application/json', responseSchema: geminiFaceSchema() } }
+        : { systemInstruction: { parts: [{ text: GEMINI_SAJU_INSTRUCTION }] }, contents: [{ role: 'user', parts: [{ text: JSON.stringify(input.payload) }] }], generationConfig: { maxOutputTokens: 12288, responseMimeType: 'application/json', responseSchema: geminiReportSchema() } })
     });
     if (!response.ok) { await response.body?.cancel(); return reply({ error: 'upstream_unavailable' }, 502); }
-    const sections = normalizeReport(JSON.parse(await boundedText(response.body, 256000)));
-    return reply({ sections, model: env.GEMINI_MODEL });
+    const result = JSON.parse(await boundedText(response.body, 256000));
+    if (isFace) return reply({ face: normalizeFaceReport(result), model: env.GEMINI_MODEL });
+    return reply({ sections: normalizeReport(result), model: env.GEMINI_MODEL });
   } catch { return reply({ error: 'generation_failed' }, 502); }
   finally { clearTimeout(timeout); }
 }
