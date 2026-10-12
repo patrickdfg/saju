@@ -3,42 +3,12 @@ import { FACE_INSTRUCTION, geminiFaceSchema, normalizeFaceReport, validateFacePa
 
 const MAX_BODY = 16000;
 const MAX_FACE_BODY = 1500000;
-export const LIMITS = { daily: 30, perIP: 3, cooldown: 60000 };
+// 화면 안내용 값이다. 실제 한도는 supabase/saju-quota.sql의 saju_reserve_generation과 같아야 한다.
+export const LIMITS = { daily: 1000, perIP: 50, cooldown: 10000 };
 const json = (value, status = 200, extra = {}) => new Response(JSON.stringify(value), {
   status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...extra }
 });
 export const koreanDay = (now = Date.now()) => new Date(now + 9 * 3600000).toISOString().slice(0, 10);
-
-// One named object for the whole service. Transaction reserves BEFORE any paid call.
-// Failed, aborted, and timed-out generations still consume a slot; no auto-retries.
-export class SajuBudget {
-  constructor(ctx) { this.ctx = ctx; }
-  async fetch(request) {
-    const { client } = await request.json();
-    if (!/^[a-f0-9]{64}$/.test(client || '')) return json({ error: 'invalid' }, 400);
-    const now = Date.now(), day = koreanDay(now);
-    const accepted = await this.ctx.storage.transaction(async txn => {
-      let state = await txn.get('budget');
-      if (!state || state.day !== day) state = { day, total: 0, clients: {} };
-      const entry = state.clients[client] || { count: 0, last: 0 };
-      if (state.total >= LIMITS.daily || entry.count >= LIMITS.perIP || (entry.last && now - entry.last < LIMITS.cooldown)) return false;
-      state.total++;
-      state.clients[client] = { count: entry.count + 1, last: now };
-      await txn.put('budget', state);
-      // Remove the current day's counters shortly after Korean midnight.
-      await txn.setAlarm(Date.parse(day + 'T00:00:00+09:00') + 86400000 + 1000);
-      return true;
-    });
-    return json({ accepted }, accepted ? 200 : 429);
-  }
-  async alarm() {
-    // A delayed alarm must not delete counters already reserved for the next day.
-    await this.ctx.storage.transaction(async txn => {
-      const state = await txn.get('budget');
-      if (state && state.day !== koreanDay()) await txn.delete('budget');
-    });
-  }
-}
 
 async function boundedText(body, limit) {
   if (!body) throw Error('body');
@@ -116,8 +86,8 @@ export async function handleRequest(request, env, upstream = fetch, clientIdenti
   const isFace = Boolean(input) && typeof input === 'object' && !Array.isArray(input) && Object.keys(input).length === 1 && Object.hasOwn(input, 'face');
   if (!isFace && bodyText.length > MAX_BODY) return reply({ error: 'invalid_body' }, 413);
   if (isFace ? !validateFacePayload(input.face) : (!input || Object.keys(input).length !== 1 || !validatePayload(input.payload))) return reply({ error: isFace ? 'invalid_image' : 'invalid_chart' }, 400);
-  // Trust only Cloudflare's edge-supplied IP, never a body field or X-Forwarded-For.
-  const ip = clientIdentity || request.headers.get('CF-Connecting-IP');
+  // The Supabase adapter supplies the browser identifier; never trust a body field.
+  const ip = clientIdentity;
   if (!ip) return reply({ error: 'client_unknown' }, 503);
   try {
     const hmac = await crypto.subtle.importKey('raw', new TextEncoder().encode(env.GEMINI_API_KEY), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
@@ -143,8 +113,3 @@ export async function handleRequest(request, env, upstream = fetch, clientIdenti
   } catch (e) { return reply({ error: 'generation_failed', reason: ['incomplete', 'format'].includes(e?.message) ? e.message : 'error' }, 502); }
   finally { clearTimeout(timeout); }
 }
-
-export default { async fetch(request, env) {
-  try { return await handleRequest(request, env); }
-  catch { return json({ error: 'service_unavailable' }, 503); }
-} };

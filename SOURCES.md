@@ -108,14 +108,9 @@
 - 상류의 역마 표는 다른 삼합 기준과 차이가 있어 이번 채택 범위에서 제외했습니다.
 - AI 출력은 9개 ID와 문단 배열을 검증해 표시하며 HTML로 실행하지 않습니다. 실제 API 호출 검증은 운영자 서버 배포와 비밀키 등록 후 가능합니다.
 
-## 운영자 공용 Gemini 서버
-- Cloudflare Workers Secret에 운영자 키를 보관하고 Durable Objects 트랜잭션으로 일일 호출 상한을 적용합니다. 서버 코드: `server/worker.mjs`.
-- 공식 문서: https://developers.cloudflare.com/workers/configuration/secrets/ , https://developers.cloudflare.com/durable-objects/api/sqlite-storage-api/
-- 프런트 `ai-config.js`에는 공개 API 주소만 넣습니다. 실제 키는 저장소에 포함하지 않습니다. 서버·키가 미연결이면 준비 중으로 표시합니다.
-
 ## Supabase 서버 전환 (2026-10-12)
 - 사용자 요청에 따라 성령말씀과 같은 Supabase Secrets 방식으로 연결. 별도 키 이름 `SAJU_GEMINI_API_KEY`, 별도 함수 `saju-ai`, 별도 한도 테이블을 사용합니다.
-- 현재 기본 모델은 성령말씀과 같은 `gemini-3.5-flash-lite`. 기존 Cloudflare/3.8 설명은 이전 구현 기록입니다.
+- 현재 기본 모델은 성령말씀과 같은 `gemini-3.5-flash-lite`.
 - 브라우저 무작위 번호 기반 개인 한도와 전체 일일 한도를 적용합니다. 공개 anon JWT는 Gemini 키가 아니며 실제 키는 서버에만 있습니다.
 - 공식 문서: https://supabase.com/docs/guides/functions/secrets
 
