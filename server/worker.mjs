@@ -133,14 +133,14 @@ export async function handleRequest(request, env, upstream = fetch, clientIdenti
     const response = await upstream('https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(env.GEMINI_MODEL) + ':generateContent', {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY }, signal: controller.signal,
       body: JSON.stringify(isFace
-        ? { systemInstruction: { parts: [{ text: FACE_INSTRUCTION }] }, contents: [{ role: 'user', parts: [{ inlineData: { mimeType: 'image/jpeg', data: input.face.image.data } }, { text: '위 사진을 지침에 따라 풀이해 주세요.' }] }], generationConfig: { maxOutputTokens: 8192, responseMimeType: 'application/json', responseSchema: geminiFaceSchema() } }
+        ? { systemInstruction: { parts: [{ text: FACE_INSTRUCTION }] }, contents: [{ role: 'user', parts: [{ inlineData: { mimeType: 'image/jpeg', data: input.face.image.data } }, { text: '위 사진을 지침에 따라 풀이해 주세요.' }] }], generationConfig: { maxOutputTokens: 16384, responseMimeType: 'application/json', responseSchema: geminiFaceSchema() } }
         : { systemInstruction: { parts: [{ text: GEMINI_SAJU_INSTRUCTION }] }, contents: [{ role: 'user', parts: [{ text: JSON.stringify(input.payload) }] }], generationConfig: { maxOutputTokens: 12288, responseMimeType: 'application/json', responseSchema: geminiReportSchema() } })
     });
-    if (!response.ok) { await response.body?.cancel(); return reply({ error: 'upstream_unavailable' }, 502); }
+    if (!response.ok) { await response.body?.cancel(); return reply({ error: 'upstream_unavailable', status: response.status }, 502); }
     const result = JSON.parse(await boundedText(response.body, 256000));
     if (isFace) return reply({ face: normalizeFaceReport(result), model: env.GEMINI_MODEL });
     return reply({ sections: normalizeReport(result), model: env.GEMINI_MODEL });
-  } catch { return reply({ error: 'generation_failed' }, 502); }
+  } catch (e) { return reply({ error: 'generation_failed', reason: ['incomplete', 'format'].includes(e?.message) ? e.message : 'error' }, 502); }
   finally { clearTimeout(timeout); }
 }
 

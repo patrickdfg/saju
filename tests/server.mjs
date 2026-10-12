@@ -49,7 +49,7 @@ const faceRequest = (face, headers = {}) => request({ face }, headers);
 let faceRes = await handleRequest(faceRequest({ image: { mime: 'image/jpeg', data: faceData } }), env, faceUpstream);
 assert.equal(faceRes.status, 200);
 const faceJson = await faceRes.json(); assert.equal(faceJson.face.status, 'ok'); assert.equal(faceJson.face.palaces.length, 10); assert.equal(faceJson.face.ogwan[0].shapeName, '新月眉');
-assert.equal(faceBody.generationConfig.maxOutputTokens, 8192);
+assert.equal(faceBody.generationConfig.maxOutputTokens, 16384);
 assert.equal(faceBody.contents[0].parts[0].inlineData.mimeType, 'image/jpeg');
 assert.ok(faceBody.systemInstruction.parts[0].text.includes('三才圖會') && faceBody.systemInstruction.parts[0].text.includes('冰鑑'));
 assert.ok(!JSON.stringify(faceBody).includes(env.GEMINI_API_KEY));

@@ -237,17 +237,17 @@ async function handleRequest(request, env, upstream = fetch, clientIdentity = nu
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
       signal: controller.signal,
-      body: JSON.stringify(isFace ? { systemInstruction: { parts: [{ text: FACE_INSTRUCTION }] }, contents: [{ role: "user", parts: [{ inlineData: { mimeType: "image/jpeg", data: input.face.image.data } }, { text: "\uC704 \uC0AC\uC9C4\uC744 \uC9C0\uCE68\uC5D0 \uB530\uB77C \uD480\uC774\uD574 \uC8FC\uC138\uC694." }] }], generationConfig: { maxOutputTokens: 8192, responseMimeType: "application/json", responseSchema: geminiFaceSchema() } } : { systemInstruction: { parts: [{ text: GEMINI_SAJU_INSTRUCTION }] }, contents: [{ role: "user", parts: [{ text: JSON.stringify(input.payload) }] }], generationConfig: { maxOutputTokens: 12288, responseMimeType: "application/json", responseSchema: geminiReportSchema() } })
+      body: JSON.stringify(isFace ? { systemInstruction: { parts: [{ text: FACE_INSTRUCTION }] }, contents: [{ role: "user", parts: [{ inlineData: { mimeType: "image/jpeg", data: input.face.image.data } }, { text: "\uC704 \uC0AC\uC9C4\uC744 \uC9C0\uCE68\uC5D0 \uB530\uB77C \uD480\uC774\uD574 \uC8FC\uC138\uC694." }] }], generationConfig: { maxOutputTokens: 16384, responseMimeType: "application/json", responseSchema: geminiFaceSchema() } } : { systemInstruction: { parts: [{ text: GEMINI_SAJU_INSTRUCTION }] }, contents: [{ role: "user", parts: [{ text: JSON.stringify(input.payload) }] }], generationConfig: { maxOutputTokens: 12288, responseMimeType: "application/json", responseSchema: geminiReportSchema() } })
     });
     if (!response.ok) {
       await response.body?.cancel();
-      return reply({ error: "upstream_unavailable" }, 502);
+      return reply({ error: "upstream_unavailable", status: response.status }, 502);
     }
     const result = JSON.parse(await boundedText(response.body, 256e3));
     if (isFace) return reply({ face: normalizeFaceReport(result), model: env.GEMINI_MODEL });
     return reply({ sections: normalizeReport(result), model: env.GEMINI_MODEL });
-  } catch {
-    return reply({ error: "generation_failed" }, 502);
+  } catch (e) {
+    return reply({ error: "generation_failed", reason: ["incomplete", "format"].includes(e?.message) ? e.message : "error" }, 502);
   } finally {
     clearTimeout(timeout);
   }
