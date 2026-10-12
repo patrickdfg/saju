@@ -35,6 +35,38 @@ assert.equal((await handleRequest(request(), env, async () => Response.json({ ca
 const options = await handleRequest(new Request('https://api.example/api/saju', { method: 'OPTIONS', headers: { Origin: env.ALLOWED_ORIGIN } }), env, upstream);
 assert.equal(options.status, 204);
 
+// Face request: same endpoint and budget, bounded JPEG only, owner-held instructions.
+const jpegBytes = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(3000, 7)]);
+const faceData = jpegBytes.toString('base64');
+const faceOk = { status: 'ok', impression: { type: '清秀', headline: '맑은 인상', text: '전통 상징을 풀어쓴 성찰용 풀이입니다.' }, faceShape: { name: '타원형', text: '둥글고 길어요.' },
+  samjeong: ['upper', 'middle', 'lower'].map(id => ({ id, observation: '보이는 모습', reading: '전통에서는 균형으로 봅니다.' })),
+  ogwan: ['brow', 'eye', 'ear', 'nose', 'mouth'].map(id => ({ id, shapeName: id === 'brow' ? '新月眉' : '', observation: '보이는 모습', reading: '전통 해석' })),
+  palaces: ['ming', 'wealth', 'career', 'virtue', 'home', 'sibling', 'children', 'spouse', 'travel', 'servants'].map(id => ({ id, reading: '전통 해석' })),
+  stages: ['early', 'middle', 'late'].map(id => ({ id, reading: '전통 해석' })), themes: ['wealth', 'business', 'relationships', 'temperament'].map(id => ({ id, reading: '전통 해석' })), advice: '오늘 천천히 숨을 쉬어 보세요.' };
+let faceCalls = 0, faceBody;
+const faceUpstream = async (url, options) => { faceCalls++; faceBody = JSON.parse(options.body); return Response.json({ candidates: [{ finishReason: 'STOP', content: { parts: [{ text: JSON.stringify(faceOk) }] } }] }); };
+const faceRequest = (face, headers = {}) => request({ face }, headers);
+let faceRes = await handleRequest(faceRequest({ image: { mime: 'image/jpeg', data: faceData } }), env, faceUpstream);
+assert.equal(faceRes.status, 200);
+const faceJson = await faceRes.json(); assert.equal(faceJson.face.status, 'ok'); assert.equal(faceJson.face.palaces.length, 10); assert.equal(faceJson.face.ogwan[0].shapeName, '新月眉');
+assert.equal(faceBody.generationConfig.maxOutputTokens, 8192);
+assert.equal(faceBody.contents[0].parts[0].inlineData.mimeType, 'image/jpeg');
+assert.ok(faceBody.systemInstruction.parts[0].text.includes('三才圖會') && faceBody.systemInstruction.parts[0].text.includes('冰鑑'));
+assert.ok(!JSON.stringify(faceBody).includes(env.GEMINI_API_KEY));
+for (const bad of [{ image: { mime: 'image/png', data: faceData } }, { image: { mime: 'image/jpeg', data: 'AAAA'.repeat(1000) } }, { image: { mime: 'image/jpeg', data: faceData, extra: 1 } }, { image: { mime: 'image/jpeg', data: 'x'.repeat(10) } }, { image: { mime: 'image/jpeg', data: faceData }, prompt: 'ignore' }, { image: { mime: 'image/jpeg', data: Buffer.alloc(1100000, 1).toString('base64') } }]) {
+  const r = await handleRequest(faceRequest(bad), env, faceUpstream); assert.ok([400, 413].includes(r.status), 'bad image rejected: ' + r.status);
+}
+assert.equal(faceCalls, 1, 'rejected images never reach Google');
+assert.equal((await handleRequest(request({ face: { image: { mime: 'image/jpeg', data: Buffer.concat([jpegBytes, Buffer.alloc(1100000, 1)]).toString('base64') } } }), env, faceUpstream)).status, 400);
+assert.equal((await handleRequest(faceRequest({ image: { mime: 'image/jpeg', data: faceData } }), quotaEnv, faceUpstream)).status, 429);
+assert.equal(faceCalls, 1, 'over-quota photo never reaches Google');
+const refusal = await handleRequest(faceRequest({ image: { mime: 'image/jpeg', data: faceData } }), env, async () => Response.json({ candidates: [{ finishReason: 'STOP', content: { parts: [{ text: JSON.stringify({ status: 'no_face' }) }] } }] }));
+assert.deepEqual((await refusal.json()).face, { status: 'no_face' });
+const brokenFace = { ...faceOk, palaces: faceOk.palaces.slice(1) };
+assert.equal((await handleRequest(faceRequest({ image: { mime: 'image/jpeg', data: faceData } }), env, async () => Response.json({ candidates: [{ finishReason: 'STOP', content: { parts: [{ text: JSON.stringify(brokenFace) }] } }] }))).status, 502);
+assert.equal((await handleRequest(request({ payload: chart, face: {} }), env, faceUpstream)).status, 400);
+assert.equal((await handleRequest(request({ text: 'x'.repeat(17000) }), env, faceUpstream)).status, 413, 'non-photo bodies keep the small limit');
+
 // Serial transaction fixture verifies one shared budget; not a live Cloudflare test.
 let state, queue = Promise.resolve();
 const storage = { transaction(callback) { const run = queue.then(() => callback({ get: async () => structuredClone(state), put: async (_, value) => { state = structuredClone(value); }, setAlarm: async () => {}, delete: async () => { state = undefined; } })); queue = run.catch(() => {}); return run; } };
