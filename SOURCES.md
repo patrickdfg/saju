@@ -78,3 +78,23 @@
 - 상류 `src/data/cards.json`의 `sources.art`는 “Pamela Colman Smith, 1909, public domain”으로 표시합니다. 해당 출처 메타데이터를 `assets/tarot/ATTRIBUTION.md`에 기록했습니다.
 - 프로젝트 MIT 고지는 `vendor/LICENSE-tarot-arcana.txt`에 보존했습니다. 원화의 출처 표기와 프로젝트 코드의 MIT 라이선스는 구별합니다.
 - 온도의 금색 프레임, 뒷면 장식, 모바일 배치는 자체 CSS입니다.
+
+
+## 별자리·점성술 통합 (2026-10-12)
+
+| 프로젝트 | 확인한 장점 | 이번 앱 반영 | 라이선스 |
+|---|---|---|---|
+| [cosinekitty/astronomy](https://github.com/cosinekitty/astronomy) | 브라우저에서 태양·달·행성 위치, 황도 좌표, 달 위상 계산 | Astronomy Engine 2.1.19 실제 포함. GeoVector + Ecliptic, MoonPhase로 위치 계산 | MIT, 원문 고지 보존 |
+| [0xStarcat/CircularNatalHoroscopeJS](https://github.com/0xStarcat/CircularNatalHoroscopeJS) | 열대/항성 황도 선택, 주요 각도와 허용 오차를 분리하는 구조 | 열대황도 및 주요 5각도·오차 표시 설계 참고. 계산 코드는 자체 구현 | Unlicense, 코드 미포함 |
+| [Kibo/AstroChart](https://github.com/Kibo/AstroChart) | 의존성 없는 SVG 원형 차트와 천체 위치 시각화 | 반응형 SVG 차트 방식 참고. 번호와 위치표로 연결한 차트 직접 작성 | MIT, 코드·이미지 미포함 |
+
+### 채택 범위와 재현
+- Astronomy Engine upstream revision: `865d3da7d8112bbc7911238052c6af4aaf877181`. `source/js/astronomy.browser.min.js`를 수정 없이 `vendor/astronomy.js`로 포함. 고지: `vendor/LICENSE-astronomy.txt`.
+- 비교한 CircularNatalHoroscopeJS: `76e150f64a3525797afe5b7ce118c2c63a1d59bd`.
+- 비교한 Kibo/AstroChart: `2e20997e87376d9cac7631bbce514d53254dc9d7`. README에 AstroDraw/AstroChart로 이전 안내가 있어 구형 구현을 직접 의존하지 않음.
+- 열대황도 12구간, 지구 중심 날짜의 참황도, 태양·달·8개 행성 위치를 계산. 과거 한국 출생기록 시각은 브라우저 Intl/Asia-Seoul 시간대로 UTC 변환. 중복·누락 시각은 확정 계산하지 않음.
+- 사주 음력/윤달 생일은 기존 만세력으로 양력 변환하여 가져옴. 사주용 진태양시·자시 변경 규칙은 천체 계산에 적용하지 않음.
+- 출생시간 미상: 정오 추정, 매시간+23:59 별자리 후보 표기, 출생 각도 생략. 후보 샘플 사이의 경계까지 완전히 보장하는 정밀 경계 탐색은 아님.
+- 주요 각도 0/60/90/120/180도, 기본 오차 6도. 오늘의 달-출생 태양 관계는 4도. 앱의 선택 기준이며 특정 학파의 유일한 표준으로 주장하지 않음.
+- 상승궁·하우스·항성황도·궁합·정밀 사건 예측은 구현 범위 밖. 한국어 상징·성찰 질문은 직접 작성. 천체 위치 계산과 점성술 해석은 구분함.
+- 저장된 별자리 생일로 앱 방문/복귀 시 한국 날짜 정오 기준 오늘의 풀이 갱신. 외부 API·키·서버 전송 없음.
