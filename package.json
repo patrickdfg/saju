@@ -1,0 +1,6 @@
+{
+  "name": "ondo-saju-tarot", "version": "2.0.0", "private": true,
+  "description": "Korean local-first saju and 78-card tarot reflection app",
+  "scripts": {"build":"node tools/build.cjs", "test":"node tests/check.cjs"},
+  "devDependencies": {"esbuild":"0.25.12", "jsdom":"26.1.0"}
+}
