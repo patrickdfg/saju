@@ -30,3 +30,5 @@ button.tarot-art:hover{transform:translateY(-4px);box-shadow:0 16px 30px #35223a
 @media(max-width:680px){.tarot-reading{grid-template-columns:1fr}.tarot-reading>.tarot-art{max-width:210px;margin:0 auto 8px}.catalog-card{padding:10px}.tarot-art.illustrated{padding:6px}.art-caption{font-size:9px}.hero-art{height:380px}.hero-art .art-card.front{width:170px}.deck button{font-size:32px}.deck button::after{font-size:8px;letter-spacing:1px}}
 
 .photo-actions{display:grid;gap:10px;margin-top:18px}.photo-actions .primary{margin:0;width:100%}.photo-actions .secondary{width:100%;padding:11px}
+
+.daily-saju-card{padding:28px;border:1px solid #d9c6a3;border-radius:18px;background:linear-gradient(140deg,#fff8e9,#f0e8f6);box-shadow:0 10px 30px #70517e10}.daily-saju-symbol{font-size:36px;color:#695779;letter-spacing:5px;margin:14px 0}.daily-saju-symbol small{font-size:14px;letter-spacing:0}.daily-saju-card .blessing{background:#ffffff80}#sajuProfile h3{margin:8px 0}#sajuProfile p{margin:8px 0}@media(max-width:680px){.daily-saju-card{padding:22px}}
