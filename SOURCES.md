@@ -48,7 +48,7 @@
 - 1장·3장·선택 A/B 5장·켈틱 크로스 10장. 켈틱 배열은 휴대폰 가독성을 위해 교차 카드를 별도 칸으로 표시.
 - 하루 카드는 한국 날짜(Asia/Seoul) 기준으로 브라우저 저장소에 유지. 기기별 카드는 다를 수 있음. 저장 차단/삭제 시 재추첨될 수 있음.
 - 카드별 한국어 정·역방향 문구와 배열 위치별 질문, 선택한 주제의 성찰 문구를 조합. 자유 질문을 의미 분석하는 LLM 기능은 아님.
-- 카드 도감의 모든 78장 검색/분류/정역 의미 확인. 자체 CSS 기호 카드이며 RWS 원화의 복제본은 아님.
+- 카드 도감의 모든 78장 검색/분류/정역 의미 확인. Rider–Waite–Smith 78장 그림을 로컬 파일로 제공하며 정·역방향과 확대 보기를 지원.
 - 미래의 사실·상대의 속마음·수익·질병을 단정하지 않음. 감사·소망·평안 문구는 별도의 격려 문장.
 
 ## 검증
@@ -69,3 +69,12 @@
 - `usingsky/korean_lunar_calendar_js`: `6f988e3f50a424d165b9834f9e28cd3ea962da63`
 - `Tarotoo-com/tarotoo-tarot-dataset`: `83202267973950eb5bf034f144b9405db9cb1e7e`
 - `julianduque/tarot-arcana`: `ec430dfe57ababeb749e2bb9adc742c361317f23`
+
+
+## 카드 일러스트 (78장)
+- 원화: Pamela Colman Smith, Rider–Waite–Smith (1909), A. E. Waite 기획.
+- 파일 출처: https://github.com/julianduque/tarot-arcana/tree/ec430dfe57ababeb749e2bb9adc742c361317f23/public/cards
+- 위 리비전의 JPG 78개를 수정 없이 `assets/tarot/`에 포함했습니다. 외부 이미지 서버에 요청하지 않습니다.
+- 상류 `src/data/cards.json`의 `sources.art`는 “Pamela Colman Smith, 1909, public domain”으로 표시합니다. 해당 출처 메타데이터를 `assets/tarot/ATTRIBUTION.md`에 기록했습니다.
+- 프로젝트 MIT 고지는 `vendor/LICENSE-tarot-arcana.txt`에 보존했습니다. 원화의 출처 표기와 프로젝트 코드의 MIT 라이선스는 구별합니다.
+- 온도의 금색 프레임, 뒷면 장식, 모바일 배치는 자체 CSS입니다.

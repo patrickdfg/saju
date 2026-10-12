@@ -46,3 +46,5 @@ npm test
 - `data/tarot-ko.tsv`: 카드 순서에 대응하는 한국어 해석
 - `app.js`: 공통 화면·기록 / `saju.js`: 만세력 UI / `tarot.js`: 카드 UI / `face.js`: 사진 거울
 - `tests/check.cjs`: jsdom 기능 검증. 실제 기기 화면의 시각적 검증은 별도 필요
+
+카드 디자인: RWS 원화 78장, 금빛 프레임·장식 뒷면, 결과 카드 확대, 모바일 큰 그림 보기. 이미지 출처는 SOURCES.md 참고.

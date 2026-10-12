@@ -27,9 +27,13 @@ for(const [spread,n] of [['one',1],['three',3],['five',5],['cross',10]]){q('#spr
 q('#dailyTarot').click();const daily=q('#tarotResult').textContent;q('#dailyTarot').click();assert.equal(q('#tarotResult').textContent,daily);
 q('#cardFilter').value='Wands';q('#cardFilter').dispatchEvent(new w.Event('change'));assert.equal(w.document.querySelectorAll('.catalog-card').length,14);
 q('#cardFilter').value='all';q('#cardSearch').value='태양';q('#cardSearch').dispatchEvent(new w.Event('input'));assert.equal(w.document.querySelectorAll('.catalog-card').length,1);
-q('#question').value='<img src=x onerror=alert(1)>';q('#spreadType').value='one';q('#shuffle').click();q('#deck button').click();assert.ok(q('#tarotResult').textContent.includes('<img'));assert.equal(q('#tarotResult img'),null);
+q('#question').value='<img src=x onerror=alert(1)>';q('#spreadType').value='one';q('#shuffle').click();q('#deck button').click();assert.ok(q('#tarotResult').textContent.includes('<img'));assert.equal(q('#tarotResult img[onerror]'),null);assert.equal(q('#tarotResult img').getAttribute('src').startsWith('assets/tarot/'),true);
 q('#expressionGoal').value='warm';q('#drawFace').click();q('#saveFace').click();assert.ok(q('#faceResult').textContent.includes('얼굴 분석 결과가 아닙니다'));assert.ok(!run('JSON.stringify(currentFace)').includes('blob:'));run("go('journal')");assert.ok(q('#records').textContent.includes('갑자'));assert.equal(q('#journal').hidden,false);
 // Existing v1 history survives the redesign.
 w.localStorage.setItem('ondo-journal-v1',JSON.stringify([{id:'old',type:'타로',title:'기존 기록',text:'예전 풀이',created:'2026-01-01T00:00:00Z',note:'내 메모'}]));run('renderRecords()');assert.ok(q('#records').textContent.includes('기존 기록'));assert.equal(q('#records textarea').value,'내 메모');
+for(const src of run('TAROT_CARDS.map(cardImage)'))assert.ok(fs.existsSync(path.join(base,src)),src);
+assert.equal(run('new Set(TAROT_CARDS.map(cardImage)).size'),78);
+assert.ok(run('cardArt(TAROT_CARDS[8],true)').includes('card-picture reversed'));
+w.HTMLDialogElement.prototype.showModal=function(){this.open=true;};q('[data-zoom-card]').click();assert.equal(q('.card-dialog').open,true);assert.ok(q('.dialog-art img').src.includes('/assets/tarot/'));
 const ids=[...w.document.querySelectorAll('[id]')].map(x=>x.id);assert.equal(ids.length,new Set(ids).size);
 console.log('PASS: lunar/leap validation, midnight/jasi/split-jasi, solar-term boundaries, solar correction, 288 calendar round trips, 12 monthly flows, 78-card coverage, 1/3/5/10-card interaction, daily persistence, catalog filters, escaped input, photo-free records, v1 journal compatibility.');w.close();
