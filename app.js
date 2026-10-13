@@ -6,7 +6,9 @@ const topics={'오늘의 마음':'내 감정을 좋고 나쁨으로 판단하기
 
 function rand(n){const a=new Uint32Array(1),ceiling=Math.floor(4294967296/n)*n;do{crypto.getRandomValues(a);}while(a[0]>=ceiling);return a[0]%n;}
 function toast(s){$('#toast').textContent=s;$('#toast').classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('#toast').classList.remove('show'),2600);}
-function go(page){if(!['home','tarot','saju','astro','face','journal'].includes(page))page='home';$$('.page').forEach(x=>x.hidden=x.id!==page);$$('nav button').forEach(x=>{x.classList.toggle('active',x.dataset.page===page);if(x.dataset.page===page)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current');});if(page==='journal')renderRecords();if(location.hash!=='#'+page)history.replaceState(null,'','#'+page);window.scrollTo({top:0,behavior:'instant'});document.dispatchEvent(new CustomEvent('ondo:page',{detail:page}));}
+// 화면에서 잠시 숨긴 메뉴. 코드와 자료는 그대로 두고, 다시 보이게 하려면 여기서 빼면 된다.
+const HIDDEN_PAGES=new Set(['tarot']);
+function go(page){if(!['home','tarot','saju','astro','face','journal'].includes(page)||HIDDEN_PAGES.has(page))page='home';$$('.page').forEach(x=>x.hidden=x.id!==page);$$('nav button').forEach(x=>{x.classList.toggle('active',x.dataset.page===page);if(x.dataset.page===page)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current');});if(page==='journal')renderRecords();if(location.hash!=='#'+page)history.replaceState(null,'','#'+page);window.scrollTo({top:0,behavior:'instant'});document.dispatchEvent(new CustomEvent('ondo:page',{detail:page}));}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-page]');if(b)go(b.dataset.page);});window.addEventListener('hashchange',()=>go(location.hash.slice(1)));
 function blessingHTML(t){return `<aside class="blessing"><small>A QUIET LIGHT · 마음에 남길 한 문장</small><p>${escapeHtml(t)}</p></aside>`;}
 function localDay(){return new Intl.DateTimeFormat('en-CA',{year:'numeric',month:'2-digit',day:'2-digit',timeZone:'Asia/Seoul'}).format(new Date());}

@@ -107,3 +107,6 @@ nav button,.chip,.secondary,.primary,summary{min-height:44px}
 /* 새 버전 안내 막대 */
 .update-bar{position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));z-index:60;display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:520px;margin:0 auto;padding:12px 14px 12px 18px;border-radius:16px;background:var(--ink);color:#fff;font-size:15px;box-shadow:0 10px 30px #0003}
 .update-bar button{min-height:40px;padding:6px 16px;border:0;border-radius:999px;background:#fff;color:var(--ink);font-weight:700;font-size:14px;cursor:pointer}
+/* 타로는 화면에서 잠시 숨김. 기능과 자료는 남겨 두었다(app.js HIDDEN_PAGES). */
+[data-page="tarot"],#tarot,.hero-art{display:none!important}
+.hero{grid-template-columns:1fr}
