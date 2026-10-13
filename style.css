@@ -104,3 +104,6 @@ nav button,.chip,.secondary,.primary,summary{min-height:44px}
 .home-flow-more{display:block;margin:14px auto 0}
 .home-flow-empty{padding:18px 0 4px;text-align:center}.home-flow-empty p{margin:0 0 14px;color:var(--muted);word-break:keep-all}
 .saju-name-field{margin-bottom:12px}.saju-name-field input{width:100%;padding:12px;border:1px solid #ddd5e2;border-radius:8px;background:#fbf9fc;font-size:16px;color:var(--ink)}
+/* 새 버전 안내 막대 */
+.update-bar{position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));z-index:60;display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:520px;margin:0 auto;padding:12px 14px 12px 18px;border-radius:16px;background:var(--ink);color:#fff;font-size:15px;box-shadow:0 10px 30px #0003}
+.update-bar button{min-height:40px;padding:6px 16px;border:0;border-radius:999px;background:#fff;color:var(--ink);font-weight:700;font-size:14px;cursor:pointer}
