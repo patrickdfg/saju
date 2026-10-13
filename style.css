@@ -110,3 +110,20 @@ nav button,.chip,.secondary,.primary,summary{min-height:44px}
 /* 타로는 화면에서 잠시 숨김. 기능과 자료는 남겨 두었다(app.js HIDDEN_PAGES). */
 [data-page="tarot"],#tarot,.hero-art{display:none!important}
 .hero{grid-template-columns:1fr}
+/* 온도책: 닫힌 책을 펼치면 한 문장이 나온다 */
+.book-panel input{width:100%;padding:13px 14px;border:1px solid #ddd5e2;border-radius:10px;background:#fbf9fc;font-size:16px;color:var(--ink)}
+.book-stage{display:flex;justify-content:center;padding:28px 0 22px;perspective:900px}
+.ondo-book{position:relative;width:170px;height:224px;border-radius:6px 14px 14px 6px;background:linear-gradient(135deg,#6d5a85,#4a3d5c);box-shadow:inset 10px 0 0 #3c3049,0 14px 30px #4a3d5c40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#f6efe2;transform-origin:left center;transition:transform .9s ease}
+.book-cover-title{font-family:Georgia,'Batang',serif;font-size:30px;letter-spacing:.08em}
+.book-cover-sub{font-size:11px;letter-spacing:.2em;opacity:.8}
+.ondo-book.opening{animation:bookShake .9s ease}
+.ondo-book.opened{transform:rotateY(-14deg)}
+@keyframes bookShake{0%{transform:rotateY(0)}30%{transform:rotateY(-18deg)}60%{transform:rotateY(-6deg)}100%{transform:rotateY(-14deg)}}
+@media (prefers-reduced-motion:reduce){.ondo-book{transition:none}.ondo-book.opening{animation:none}}
+.book-status{text-align:center;min-height:1.6em}
+.book-answer{margin-top:10px;padding:26px 22px;border-radius:18px;background:#fbf8f1;border:1px solid #e6dccb;text-align:center}
+.book-page{display:block;font-size:13px;letter-spacing:.12em;color:#8a6f4e;font-weight:600}
+.book-sentence{margin:14px 0 0;font-family:Georgia,'Batang',serif;font-size:24px;line-height:1.6;color:var(--ink);word-break:keep-all}
+.book-worry{margin:16px 0 0;font-size:14px;color:var(--muted);word-break:keep-all}
+.book-support{background:#f4f1fb;border-color:#d8cfe8}
+.book-support .book-sentence{font-size:20px}
