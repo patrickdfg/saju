@@ -34,8 +34,8 @@ function renderHomeFlow(){
  if(days){who.append(el('span','home-flow-who-label','사주정보'),el('b','home-flow-who-name',name||'나'));const change=el('button','home-flow-change','변경');change.type='button';change.onclick=()=>{go('saju');const edit=document.querySelector('#editSajuProfile');if(edit)edit.click();};who.append(change);}
  head.append(title,who);host.append(head);
  if(!days){
-  const empty=el('div','home-flow-empty');empty.append(el('p',undefined,'생일을 저장하면 그제부터 모레까지의 흐름과 오늘의 한 줄이 여기에 매일 나와요.'));
-  const go1=el('button','primary','사주에서 생일 저장하기');go1.type='button';go1.onclick=()=>go('saju');empty.append(go1);host.append(empty);return;
+  const empty=el('div','home-flow-empty');const art=el('img','flow-illustration');art.src='assets/design/saju.svg';art.alt='';art.width=100;art.height=100;empty.append(art);empty.append(el('p',undefined,'내 생일에 맞춘 오늘의 한마디를 매일 만나보세요.'));
+  const go1=el('button','primary','내 생일 등록하기');go1.type='button';go1.onclick=()=>go('saju');empty.append(go1);host.append(empty);return;
  }
  const date=el('p','home-flow-date',homeFlowDateText(days[homeFlowSelected].day));host.append(date);
  const min=Math.min(...days.map(x=>x.index))-6,max=Math.max(...days.map(x=>x.index))+6,span=Math.max(1,max-min);
@@ -50,7 +50,7 @@ function renderHomeFlow(){
  host.append(tabs);
  const pick=days[homeFlowSelected];
  host.append(el('p','home-flow-score',String(pick.index)),el('p','home-flow-headline',pick.headline));
- host.append(el('p','home-flow-note',`흐름 지수는 내 일간과 그날 일진의 관계(${pick.d.god})를 온도가 정한 표로 바꾼 참고 숫자예요. 좋고 나쁨의 판정이나 예측이 아니라, 그날 어울리는 속도를 가늠하는 용도예요.`));
+ const explanation=el('details','flow-explanation');explanation.append(el('summary',undefined,'이 지수는 무엇인가요?'));explanation.append(el('p','home-flow-note',`흐름 지수는 내 일간과 그날 일진의 관계(${pick.d.god})를 온도가 정한 표로 바꾼 참고 숫자예요. 좋고 나쁨의 판정이나 예측이 아니라, 그날 어울리는 속도를 가늠하는 용도예요.`));host.append(explanation);
  const more=el('button','secondary home-flow-more','오늘의 사주 자세히 보기');more.type='button';more.onclick=()=>go('saju');host.append(more);
 }
 function homeFlowNameField(){
