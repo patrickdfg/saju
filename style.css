@@ -148,3 +148,14 @@ nav button,.chip,.secondary,.primary,summary{min-height:44px}
 .book-support .book-sentence{font-size:20px}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.ondo-book,.book-cover,.book-leaf{transition:none}.book-sentence .ink{animation:none;opacity:1}}
+/* 페이지 안 카메라: 전체 화면 미리보기와 촬영 버튼 */
+body.cam-open{overflow:hidden}
+.cam-overlay{position:fixed;inset:0;z-index:80;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#141019}
+.cam-overlay video{width:100%;max-width:640px;max-height:72vh;object-fit:cover;border-radius:0;background:#000}
+.cam-overlay video.mirror{transform:scaleX(-1)}
+.cam-guide{margin:14px 16px 0;color:#e9e2f2;font-size:15px;text-align:center}
+.cam-actions{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:420px;padding:22px 28px max(22px,env(safe-area-inset-bottom))}
+.cam-cancel,.cam-flip{min-width:72px;min-height:44px;border:1px solid #ffffff55;border-radius:999px;background:none;color:#fff;font-size:15px}
+.cam-shutter{width:76px;height:76px;border-radius:50%;border:5px solid #fff;background:#ffffff33;cursor:pointer}
+.cam-shutter:disabled{opacity:.4}
+.cam-shutter:active{background:#fff}
